@@ -8,8 +8,8 @@ import * as fetchJSON from "fetch_json"
 
 // export default class $json {
 export default class $json {
-    static enums = {Cache, Credentials, Mode, Redirect, Referrer};
-    // static postOptions = {Cache, Credentials, Mode, Redirect, Referrer};
+    // static enums = {Cache, Credentials, Mode, Redirect, Referrer};
+    static postOptions = {Cache, Credentials, Mode, Redirect, Referrer};
 
     static get(path: string, functor: Function|undefined){
         return fetchJSON(path, functor);

@@ -281,7 +281,7 @@ var $json = function () {
     return $json;
 }();
 
-$json.enums = { Cache: Cache_1.Cache, Credentials: Credentials_1.Credentials, Mode: Mode_1.Mode, Redirect: Redirect_1.Redirect, Referrer: Referrer_1.Referrer };
+$json.postOptions = { Cache: Cache_1.Cache, Credentials: Credentials_1.Credentials, Mode: Mode_1.Mode, Redirect: Redirect_1.Redirect, Referrer: Referrer_1.Referrer };
 exports.default = $json;
 ;
 //# sourceMappingURL=jsonclient.js.map

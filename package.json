@@ -1,6 +1,6 @@
 {
-  "name": "jsonclient",
-  "version": "0.0.1",
+  "name": "@voltra/json",
+  "version": "1.0.0",
   "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
   "main": "dist/jsonclient.js",
   "scripts": {
