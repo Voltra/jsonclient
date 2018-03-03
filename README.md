@@ -5,7 +5,7 @@ Therefore it is completely Promise based and makes it easy to communicate JSON d
 
 ## How to ?
 
-First you need to get this library, either by using [npm (w/ node)](https://nodejs.org/en/) and `npm i --save jsonclient` or by downloading it from the [GitHub repository](https://github.com/Voltra/jsonclient).
+First you need to get this library, either by using [npm (w/ node)](https://nodejs.org/en/) and `npm i --save @voltra/json` or by downloading it from the [GitHub repository](https://github.com/Voltra/jsonclient).
 
 
 
