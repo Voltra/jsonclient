@@ -1,0 +1,42 @@
+{
+  "name": "jsonclient",
+  "version": "0.0.1",
+  "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
+  "main": "dist/jsonclient.js",
+  "scripts": {
+    "setup": "npm i && npm update",
+    "build": "npm run buildTsc && npm run buildBabel && npm run webpack",
+    "buildTsc": "./node_modules/.bin/tsc",
+    "buildBabel": "./node_modules/.bin/babel build-tsc --out-dir build-babel --source-maps",
+    "webpack": "./node_modules/.bin/webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Voltra/jsonclient.git"
+  },
+  "keywords": [
+    "json",
+    "client",
+    "http",
+    "https",
+    "request",
+    "simple",
+    "promise",
+    "fetch"
+  ],
+  "author": "Voltra",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Voltra/jsonclient/issues"
+  },
+  "homepage": "https://github.com/Voltra/jsonclient#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "fetch_json": "^1.1.0",
+    "ts-loader": "^4.0.1",
+    "typescript": "^2.7.2",
+    "webpack": "^4.0.1"
+  }
+}
