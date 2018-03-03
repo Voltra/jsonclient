@@ -1,46 +1,23 @@
-import Cache from "@ts/enums/Cache"
-import Credentials from "@ts/enums/Cache"
-import Mode from "@ts/enums/Cache"
-import Redirect from "@ts/enums/Cache"
-import Referrer from "@ts/enums/Cache"
-import fetchJSON from "fetch_json"
+import {Cache} from "./enums/Cache"
+import {Credentials} from "./enums/Credentials"
+import {Mode} from "./enums/Mode"
+import {Redirect} from "./enums/Redirect"
+import {Referrer} from "./enums/Referrer"
+import * as fetchJSON from "fetch_json"
 
 
-export namespace $json {
-    export const Cache = Cache;
-    export const Credentials = Credentials;
-    export const Mode = Mode;
-    export const Redirect = Redirect;
-    export const Referrer = Referrer;
-    
-    export const get = fetchJSON;
-    
-    
-    export function post(url: string, data: any, cache: Cache, credentials: Credentials, mode: Mode, redirect: Redirect, referrer: Referrer){
-        const payload = {
-            cache,
-            credentials,
-            mode,
-            redirect,
-            referrer
-        };
-        
-        return $json.post(url, data, payload);
+// export default class $json {
+export default class $json {
+    static enums = {Cache, Credentials, Mode, Redirect, Referrer};
+    // static postOptions = {Cache, Credentials, Mode, Redirect, Referrer};
+
+    static get(path: string, functor: Function|undefined){
+        return fetchJSON(path, functor);
     }
     
-    export function post(url: string, data: any){
-        return $json.post(
-            url,
-            data,
-            Cache.DEFAULT,
-            Credentials.OMIT,
-            Mode.SAMEORIGIN,
-            Redirect.MANUAL,
-            Referrer.CLIENT
-        );
-    }
-    
-    export function post(url: string, data: any, options: object){
+
+    protected static __post_options(url: string, data: any, options: object): Promise<any>;
+    protected static __post_options(url: string, data: any, options: object): Promise<any>{
         delete options["body"];
         delete options["headers"];
         delete options["method"];
@@ -55,7 +32,7 @@ export namespace $json {
         
         const finalPayload = Object.assign({}, payload, options);
         
-        return new Promise((resolve, reject)=>{
+        const promise = new Promise((resolve, reject)=>{
             const f = fetch(url, finalPayload);
             f.then(response => {
                 var contentType= response.headers.get("content-type");
@@ -70,8 +47,57 @@ export namespace $json {
             });
             return f;
         });
+
+        return promise as Promise<any>;
     }
     
-}
+    protected static __post_allArgs(url: string, data: any, cache: Cache, credentials: Credentials, mode: Mode, redirect: Redirect, referrer: Referrer): Promise<any>;
+    protected static __post_allArgs(url: string, data: any, cache: Cache, credentials: Credentials, mode: Mode, redirect: Redirect, referrer: Referrer): Promise<any>{
+        const payload = {
+            cache,
+            credentials,
+            mode,
+            redirect,
+            referrer
+        };
+        
+        return $json.__post_options(url, data, payload) as Promise<any>;
+    }
+    
+    protected static __post_data(url: string, data: any): Promise<any>;
+    protected static __post_data(url: string, data: any): Promise<any>{
+        // return $json.__post_allArgs(
+        //     url,
+        //     data,
+        //     Cache.DEFAULT,
+        //     Credentials.OMIT,
+        //     Mode.SAMEORIGIN,
+        //     Redirect.MANUAL,
+        //     Referrer.CLIENT
+        // ) as Promise<any>;
+        return $json.__post_options(url, data, {});
+    }
 
-this.$json = $json
+    static post(url: string, data: any, ...options: any[]): Promise<any>|null;
+    static post(url: string, data: any, ...options: any[]): Promise<any>|null{
+        if(options.length === 0)
+            return $json.__post_data(url, data) as Promise<any>;
+
+        if(options.length === 5){
+            const cache = options[0] as Cache;
+            const credentials = options[1] as Credentials;
+            const mode = options[2] as Mode;
+            const redirect = options[3] as Redirect;
+            const referrer = options[4] as Referrer;
+
+            return $json.__post_allArgs(url, data, cache, credentials, mode, redirect, referrer) as Promise<any>;
+        }
+
+        if(options.length === 1){
+            const optionsObj = options[0] as object;
+            return $json.__post_options(url, data, optionsObj) as Promise<any>;
+        }
+
+        return null;
+    }
+};

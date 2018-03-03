@@ -1,4 +1,4 @@
-export default enum Referrer{
+export /*const*/ enum Referrer{
     NONE = "no-referrer",
     CLIENT = "client"
 }

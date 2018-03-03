@@ -1,11 +1,13 @@
-const path = require('path');
+const path = require("path");
 const thisPath = __dirname;
 
 module.exports = {
+    mode: "development",
+    target: "web",
     devtool: "source-map",
-    entry: './build-babel/jsonclient.js',
+    entry: "./src/jsonclient.js",
     output: {
-        filename: 'jsonclient.js',
+        filename: "jsonclient.js",
         path: path.resolve(thisPath, "dist")
     },
     resolve: {

@@ -8,7 +8,8 @@
     "build": "npm run buildTsc && npm run buildBabel && npm run webpack",
     "buildTsc": "./node_modules/.bin/tsc",
     "buildBabel": "./node_modules/.bin/babel build-tsc --out-dir build-babel --source-maps",
-    "webpack": "./node_modules/.bin/webpack"
+    "webpack": "./node_modules/.bin/webpack --progress",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "fetch_json": "^1.1.0",
     "ts-loader": "^4.0.1",
     "typescript": "^2.7.2",
-    "webpack": "^4.0.1"
+    "webpack": "^4.0.1",
+    "webpack-cli": "^2.0.10"
   }
 }

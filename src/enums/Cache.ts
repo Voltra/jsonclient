@@ -1,4 +1,4 @@
-export default enum Cache{
+export /*const*/ enum Cache {
   DEFAULT = "default",
   NONE = "no-cache",
   RELOAD = "reload",
