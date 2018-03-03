@@ -1,4 +1,9 @@
+<p align="center"><img src="logo.png" alt="logo" width="300"></p>
+
+
+
 # JsonClient
+
 JsonClient is a JavaScript HTTP client specialized for JSON communications, based upon the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 
 Therefore it is completely Promise based and makes it easy to communicate JSON data across your application.
