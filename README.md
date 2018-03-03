@@ -11,9 +11,9 @@ First you need to get this library, either by using [npm (w/ node)](https://node
 
 Then you will need to use it in your application :
 
-* \>= ES6 : `import $json from "jsonclient"`
-* Node (<ES6) : `const $json = require("jsonclient")`
-* In your HTML files : `<script src="your/path/to/jsonclient.js"></script>`
+* \>= ES6 : `import $json from "@voltra/json"`
+* Node (<ES6) : `const $json = require("@voltra/json")`
+* In your HTML files : `<script src="your/path/to/jsonclient.js"></script>` (exposes the variable `$json`)
 
 
 
@@ -33,7 +33,7 @@ The Promise returned by `$json.get` resolves to the JSON data requested.
 
 ### POST requests
 
-If you have made any POST request via the Fetch API, you probably notice that it is very redundant.
+If you have made any POST request via the Fetch API, you probably noticed that it is very redundant.
 
 Therefore, this library enables you to ease your job at emitting POST requests.
 
@@ -45,21 +45,19 @@ Therefore, this library enables you to ease your job at emitting POST requests.
 
 ```
 $json.post :: (
-	url: stirng,
+	url: string,
 	data: any,
 	cache: $json.postOptions.Cache,
 	credentials: $json.postOptions.Credentials,
 	mode: $json.postOptions.Mode,
 	redirect: $json.postOptions.Redirect,
-	referrer: $json.postOptions.Redirect
+	referrer: $json.postOptions.Referrer
 ) -> Promise
 ```
 
 
 
-If you have any doubts, you could refer to [Mozilla's guide on how to provide options to `fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Supplying_request_options)
-
-
+If you have any doubts, you could refer to [Mozilla's guide on how to provide options to `fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Supplying_request_options) or ask for advices on my Discord server.
 
 ---
 
