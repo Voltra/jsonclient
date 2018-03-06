@@ -8,4 +8,3 @@ var Credentials;
     Credentials["SAMEORIGIN"] = "same-origin";
 })(Credentials = exports.Credentials || (exports.Credentials = {}));
 //# sourceMappingURL=Credentials.js.map
-//# sourceMappingURL=Credentials.js.map

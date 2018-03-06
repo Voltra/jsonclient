@@ -6,20 +6,63 @@ const Mode_1 = require("./enums/Mode");
 const Redirect_1 = require("./enums/Redirect");
 const Referrer_1 = require("./enums/Referrer");
 const fetchJSON = require("fetch_json");
-class $json {
-    static get(path, functor) {
+const $json = {
+    postOptionsEnums: { Cache: Cache_1.Cache, Credentials: Credentials_1.Credentials, Mode: Mode_1.Mode, Redirect: Redirect_1.Redirect, Referrer: Referrer_1.Referrer },
+    defaults: {
+        POST: {
+            options: {},
+            headers: {
+                "content-type": "application/json"
+            }
+        }
+    },
+    get(path, functor) {
         return fetchJSON(path, functor);
+    },
+    post(url, data, ...options) {
+        if (options.length === 0)
+            return this.__post_data(url, data);
+        if (options.length === 5) {
+            const cache = options[0];
+            const credentials = options[1];
+            const mode = options[2];
+            const redirect = options[3];
+            const referrer = options[4];
+            return this.__post_allArgs(url, data, cache, credentials, mode, redirect, referrer);
+        }
+        if (options.length === 1) {
+            const optionsObj = options[0];
+            return this.__post_options(url, data, optionsObj);
+        }
+        return null;
+    },
+};
+Object.defineProperty($json, "__post_data", {
+    value: function __post_data(url, data) {
+        return this.__post_options(url, data, this.defaults.POST.options);
     }
-    static __post_options(url, data, options) {
+});
+Object.defineProperty($json, "__post_allArgs", {
+    value: function __post_allArgs(url, data, cache, credentials, mode, redirect, referrer) {
+        const payload = {
+            cache,
+            credentials,
+            mode,
+            redirect,
+            referrer
+        };
+        return this.__post_options(url, data, payload);
+    }
+});
+Object.defineProperty($json, "__post_options", {
+    value: function __post_options(url, data, options) {
         delete options["body"];
         delete options["headers"];
         delete options["method"];
         const payload = {
             method: "POST",
             body: JSON.stringify(data),
-            headers: {
-                "content-type": "application/json"
-            }
+            headers: this.defaults.POST.headers
         };
         const finalPayload = Object.assign({}, payload, options);
         const promise = new Promise((resolve, reject) => {
@@ -29,7 +72,7 @@ class $json {
                 if (contentType && contentType.includes("application/json"))
                     return response.json().then(resolve);
                 else {
-                    reject("Something went wrong during data inspection (data is not JSON or couldn't reach file)");
+                    reject("Something went wrong during data inspection (data is not JSON)");
                     return null;
                 }
             });
@@ -37,38 +80,6 @@ class $json {
         });
         return promise;
     }
-    static __post_allArgs(url, data, cache, credentials, mode, redirect, referrer) {
-        const payload = {
-            cache,
-            credentials,
-            mode,
-            redirect,
-            referrer
-        };
-        return $json.__post_options(url, data, payload);
-    }
-    static __post_data(url, data) {
-        return $json.__post_options(url, data, {});
-    }
-    static post(url, data, ...options) {
-        if (options.length === 0)
-            return $json.__post_data(url, data);
-        if (options.length === 5) {
-            const cache = options[0];
-            const credentials = options[1];
-            const mode = options[2];
-            const redirect = options[3];
-            const referrer = options[4];
-            return $json.__post_allArgs(url, data, cache, credentials, mode, redirect, referrer);
-        }
-        if (options.length === 1) {
-            const optionsObj = options[0];
-            return $json.__post_options(url, data, optionsObj);
-        }
-        return null;
-    }
-}
-$json.postOptions = { Cache: Cache_1.Cache, Credentials: Credentials_1.Credentials, Mode: Mode_1.Mode, Redirect: Redirect_1.Redirect, Referrer: Referrer_1.Referrer };
+});
 exports.default = $json;
-;
 //# sourceMappingURL=jsonclient.js.map

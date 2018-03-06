@@ -8,4 +8,3 @@ var Mode;
     Mode["SAMEORIGIN"] = "same-origin";
 })(Mode = exports.Mode || (exports.Mode = {}));
 //# sourceMappingURL=Mode.js.map
-//# sourceMappingURL=Mode.js.map

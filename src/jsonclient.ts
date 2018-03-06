@@ -5,9 +5,156 @@ import {Redirect} from "./enums/Redirect"
 import {Referrer} from "./enums/Referrer"
 import * as fetchJSON from "fetch_json"
 
+const $json = {
+    postOptionsEnums: {Cache, Credentials, Mode, Redirect, Referrer},
+    defaults: {
+        POST: {
+            options: {},
+            headers: {
+                "content-type": "application/json"
+            }
+        }
+    },
+    // factory: {
+    //     withDefaults: (newDefaults: object)=>{
+    //         console.log(this.default);
+    //         const defaults = Object.assign({}, this.defaults, newDefaults);
+    //         return Object.assign({}, this, { defaults });
+    //     }
+    // },
+    get(path: string, functor: Function|undefined): Promise<any>{
+        return fetchJSON(path, functor);
+    },
+    post(url: string, data: any, ...options: any[]): Promise<any>|null{
+        if(options.length === 0)
+            return this.__post_data(url, data) as Promise<any>;
+
+        if(options.length === 5){
+            const cache = options[0] as Cache;
+            const credentials = options[1] as Credentials;
+            const mode = options[2] as Mode;
+            const redirect = options[3] as Redirect;
+            const referrer = options[4] as Referrer;
+
+            return this.__post_allArgs(url, data, cache, credentials, mode, redirect, referrer) as Promise<any>;
+        }
+
+        if(options.length === 1){
+            const optionsObj = options[0] as object;
+            return this.__post_options(url, data, optionsObj) as Promise<any>;
+        }
+
+        return null;
+    },
+    // __post_options(url: string, data: any, options: object): Promise<any>{
+    //     delete options["body"];
+    //     delete options["headers"];
+    //     delete options["method"];
+        
+    //     const payload = {
+    //         method: "POST",
+    //         body: JSON.stringify(data),
+    //         headers: {
+    //             "content-type": "application/json"
+    //         }
+    //     };
+        
+    //     const finalPayload = Object.assign({}, payload, options);
+        
+    //     const promise = new Promise((resolve, reject)=>{
+    //         const f = fetch(url, finalPayload);
+    //         f.then(response => {
+    //             var contentType= response.headers.get("content-type");
+
+    //             if(contentType && contentType.includes("application/json"))
+    //                 return response.json().then(resolve);
+    //             else{
+    //                 //throw new Error("Something went wrong during data inspection (data is not JSON)");
+    //                 reject("Something went wrong during data inspection (data is not JSON)");
+    //                 return null;
+    //             }
+    //         });
+    //         return f;
+    //     });
+
+    //     return promise as Promise<any>;
+    // },
+    // __post_allArgs(url: string, data: any, cache: Cache, credentials: Credentials, mode: Mode, redirect: Redirect, referrer: Referrer): Promise<any>{
+    //     const payload = {
+    //         cache,
+    //         credentials,
+    //         mode,
+    //         redirect,
+    //         referrer
+    //     };
+        
+    //     return this.__post_options(url, data, payload) as Promise<any>;
+    // },
+    // __post_data(url: string, data: any): Promise<any>{
+    //     return this.__post_options(url, data, {});
+    // },
+    
+};
+
+Object.defineProperty($json, "__post_data", {
+    value: function __post_data(url: string, data: any): Promise<any>{
+        // return this.__post_options(url, data, {});
+        return this.__post_options(url, data, this.defaults.POST.options);
+    }
+});
+
+Object.defineProperty($json, "__post_allArgs", {
+    value: function __post_allArgs(url: string, data: any, cache: Cache, credentials: Credentials, mode: Mode, redirect: Redirect, referrer: Referrer): Promise<any>{
+        const payload = {
+            cache,
+            credentials,
+            mode,
+            redirect,
+            referrer
+        };
+        
+        return this.__post_options(url, data, payload) as Promise<any>;
+    }
+});
+
+Object.defineProperty($json, "__post_options", {
+    value: function __post_options(url: string, data: any, options: object): Promise<any>{
+        delete options["body"];
+        delete options["headers"];
+        delete options["method"];
+        
+        const payload = {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: this.defaults.POST.headers
+        };
+        
+        const finalPayload = Object.assign({}, payload, options);
+        
+        const promise = new Promise((resolve, reject)=>{
+            const f = fetch(url, finalPayload);
+            f.then(response => {
+                var contentType= response.headers.get("content-type");
+
+                if(contentType && contentType.includes("application/json"))
+                    return response.json().then(resolve);
+                else{
+                    //throw new Error("Something went wrong during data inspection (data is not JSON)");
+                    reject("Something went wrong during data inspection (data is not JSON)");
+                    return null;
+                }
+            });
+            return f;
+        });
+
+        return promise as Promise<any>;
+    }
+});
+
+export default $json;
 
 // export default class $json {
-export default class $json {
+/* export default class $json {
     // static enums = {Cache, Credentials, Mode, Redirect, Referrer};
     static postOptions = {Cache, Credentials, Mode, Redirect, Referrer};
 
@@ -100,4 +247,4 @@ export default class $json {
 
         return null;
     }
-};
+}; */

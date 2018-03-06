@@ -8,4 +8,3 @@ var Redirect;
     Redirect["ERROR"] = "error";
 })(Redirect = exports.Redirect || (exports.Redirect = {}));
 //# sourceMappingURL=Redirect.js.map
-//# sourceMappingURL=Redirect.js.map
