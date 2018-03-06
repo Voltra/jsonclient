@@ -1,8 +1,8 @@
 {
   "name": "@voltra/json",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
-  "main": "build-babel/jsonclient.esm.js",
+  "main": "build-babel/jsonclient.js",
   "scripts": {
     "setup": "npm i && npm update",
     "build": "npm run buildTsc && npm run buildBabel && npm run webpack",
