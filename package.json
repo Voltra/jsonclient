@@ -1,6 +1,6 @@
 {
   "name": "@voltra/json",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
   "main": "build-babel/jsonclient.js",
   "scripts": {
@@ -34,10 +34,12 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "fetch_json": "^1.1.0",
     "ts-loader": "^4.0.1",
     "typescript": "^2.7.2",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.10"
+  },
+  "dependencies": {
+    "fetch_json": "^1.1.0"
   }
 }

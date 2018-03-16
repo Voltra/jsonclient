@@ -1,4 +1,4 @@
-import $json from "../build-babel/jsonclient"
+import {$json} from "../build-babel/jsonclient"
 
 // (function UniversalModuleDefinition(root, factory){
 // 	if(typeof exports === 'object' && typeof module === 'object')

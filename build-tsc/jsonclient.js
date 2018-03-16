@@ -37,6 +37,7 @@ const $json = {
         return null;
     },
 };
+exports.$json = $json;
 Object.defineProperty($json, "__post_data", {
     value: function __post_data(url, data) {
         return this.__post_options(url, data, this.defaults.POST.options);
@@ -81,5 +82,4 @@ Object.defineProperty($json, "__post_options", {
         return promise;
     }
 });
-exports.default = $json;
 //# sourceMappingURL=jsonclient.js.map

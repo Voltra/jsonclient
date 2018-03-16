@@ -151,7 +151,7 @@ Object.defineProperty($json, "__post_options", {
     }
 });
 
-export default $json;
+export /*default*/ {$json};
 
 // export default class $json {
 /* export default class $json {
