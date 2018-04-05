@@ -1,10 +1,10 @@
 {
   "name": "@voltra/json",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
   "main": "build-babel/jsonclient.js",
   "scripts": {
-    "setup": "npm i && npm update",
+    "setup": "npm i && npm update && npm update -D",
     "build": "npm run buildTsc && npm run buildBabel && npm run webpack",
     "buildTsc": "./node_modules/.bin/tsc",
     "buildBabel": "./node_modules/.bin/babel build-tsc --out-dir build-babel",
@@ -34,12 +34,12 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "ts-loader": "^4.0.1",
-    "typescript": "^2.7.2",
-    "webpack": "^4.0.1",
-    "webpack-cli": "^2.0.10"
+    "ts-loader": "^4.1.0",
+    "typescript": "^2.8.1",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^2.0.14"
   },
   "dependencies": {
-    "fetch_json": "^1.1.0"
+    "fetch_json": "^2.0.0"
   }
 }

@@ -30,7 +30,7 @@ Therefore, the behavior of `$json.get` is identical to the behavior of `fetchJSO
 
 
 
-`$json.get :: (url: string, functor: function|undefined) -> Promise`
+`$json.get :: (url: string, data: object|undefined) -> Promise`
 
 The Promise returned by `$json.get` resolves to the JSON data requested.
 
@@ -137,6 +137,22 @@ If you don't find an answer to your problem, feel free to ask for help on my [Di
 >
 > - The data is not **explicitely** marked as json (needs the`content-type` to be `application/json`, which is the standard way of identifying JSON)
 > - The client was unable to reach the requested data (typo, wrong URL/URI, etc...)
+
+
+
+**I cannot use a callback for `$json.get` anymore, what's going on ?**
+
+> That's very simple. Since v1.2.0 I have updated `fetch_json` to its version 2.0.0 (or latest). The callback has been replaced by an object that will be transformed into the query string (optional).
+>
+> I thought that since you can `then` you way out of it, the callback was completely unnecessary and has therefore been removed.
+>
+> But no you can enjoy an easy query string.
+
+
+
+**My server doesn't mark explicitely my data as JSON but it still lands properly, why ?**
+
+> Again, since v1.2.0 I have updated `fetch_json` to its version 2.0.0 (or latest). It has loosen up the way it handles JSON conversion.
 
 
 

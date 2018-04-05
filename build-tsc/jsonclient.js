@@ -16,8 +16,8 @@ const $json = {
             }
         }
     },
-    get(path, functor) {
-        return fetchJSON(path, functor);
+    get(path, data = {}) {
+        return fetchJSON(path, data);
     },
     post(url, data, ...options) {
         if (options.length === 0)
@@ -69,13 +69,12 @@ Object.defineProperty($json, "__post_options", {
         const promise = new Promise((resolve, reject) => {
             const f = fetch(url, finalPayload);
             f.then(response => {
-                var contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("application/json"))
-                    return response.json().then(resolve);
-                else {
-                    reject("Something went wrong during data inspection (data is not JSON)");
-                    return null;
-                }
+                return response.json().then(resolve)
+                    .catch(() => {
+                    const error = "Something went wrong during data inspection (data is not JSON)";
+                    reject(error);
+                    return Promise.reject(error);
+                });
             });
             return f;
         });

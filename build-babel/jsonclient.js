@@ -17,8 +17,10 @@ var $json = {
             }
         }
     },
-    get: function get(path, functor) {
-        return fetchJSON(path, functor);
+    get: function get(path) {
+        var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+        return fetchJSON(path, data);
     },
     post: function post(url, data) {
         if ((arguments.length <= 2 ? 0 : arguments.length - 2) === 0) return this.__post_data(url, data);
@@ -69,11 +71,11 @@ Object.defineProperty($json, "__post_options", {
         var promise = new Promise(function (resolve, reject) {
             var f = fetch(url, finalPayload);
             f.then(function (response) {
-                var contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) return response.json().then(resolve);else {
-                    reject("Something went wrong during data inspection (data is not JSON)");
-                    return null;
-                }
+                return response.json().then(resolve).catch(function () {
+                    var error = "Something went wrong during data inspection (data is not JSON)";
+                    reject(error);
+                    return Promise.reject(error);
+                });
             });
             return f;
         });

@@ -22,8 +22,8 @@ const $json = {
     //         return Object.assign({}, this, { defaults });
     //     }
     // },
-    get(path: string, functor: Function|undefined): Promise<any>{
-        return fetchJSON(path, functor);
+    get(path: string, data = {}): Promise<any>{
+        return fetchJSON(path, data);
     },
     post(url: string, data: any, ...options: any[]): Promise<any>|null{
         if(options.length === 0)
@@ -134,15 +134,20 @@ Object.defineProperty($json, "__post_options", {
         const promise = new Promise((resolve, reject)=>{
             const f = fetch(url, finalPayload);
             f.then(response => {
-                var contentType= response.headers.get("content-type");
+                // var contentType= response.headers.get("content-type");
 
-                if(contentType && contentType.includes("application/json"))
-                    return response.json().then(resolve);
-                else{
-                    //throw new Error("Something went wrong during data inspection (data is not JSON)");
-                    reject("Something went wrong during data inspection (data is not JSON)");
-                    return null;
-                }
+                // if(contentType && contentType.includes("application/json"))
+                    return response.json().then(resolve)
+                    .catch(()=>{
+                        const error = "Something went wrong during data inspection (data is not JSON)";
+                        reject(error);
+                        return Promise.reject(error);
+                    });
+                // else{
+                //     //throw new Error("Something went wrong during data inspection (data is not JSON)");
+                //     reject("Something went wrong during data inspection (data is not JSON)");
+                //     return null;
+                // }
             });
             return f;
         });
