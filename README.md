@@ -80,7 +80,7 @@ Default values are located in the object `$json.defaults` and are classified per
 
 There are only two dependencies :
 
-* [fetchJSON](https://www.npmjs.com/package/fetch_json) : Used in developpement as the GET request provider (I'm the on that needs it)
+* [fetchJSON](https://www.npmjs.com/package/fetch_json) : Used in developpement as the GET request provider (I'm the one that needs it, you don't have to put it in your dependencies)
 
 * The Fetch API or `fetch` : As part of the Fetch API, `fetch` allows to emit HTTP requests. This library is heavily based around this function and therefore requires it, modern browsers implement it but there are also a lot of polyfills out there, here are two of them :
 
