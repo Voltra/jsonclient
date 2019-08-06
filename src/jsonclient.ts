@@ -8,7 +8,9 @@ import * as fetchJSON from "fetch_json"
 const $json = {
     postOptionsEnums: {Cache, Credentials, Mode, Redirect, Referrer},
     defaults: {
+        GET: fetchJSON.defaults,
         POST: {
+            data: {},
             options: {},
             headers: {
                 "content-type": "application/json"
@@ -22,8 +24,8 @@ const $json = {
     //         return Object.assign({}, this, { defaults });
     //     }
     // },
-    get(path: string, data = {}): Promise<any>{
-        return fetchJSON(path, data);
+    get(path: string, data = {}, options = {}): Promise<any>{
+        return fetchJSON(path, data, options);
     },
     post(url: string, data: any, ...options: any[]): Promise<any>|null{
         if(options.length === 0)
@@ -125,7 +127,7 @@ Object.defineProperty($json, "__post_options", {
         
         const payload = {
             method: "POST",
-            body: JSON.stringify(data),
+            body: JSON.stringify(Object.assign({}, this.defaults.POST.data,data)),
             headers: this.defaults.POST.headers
         };
         

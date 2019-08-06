@@ -9,15 +9,17 @@ const fetchJSON = require("fetch_json");
 const $json = {
     postOptionsEnums: { Cache: Cache_1.Cache, Credentials: Credentials_1.Credentials, Mode: Mode_1.Mode, Redirect: Redirect_1.Redirect, Referrer: Referrer_1.Referrer },
     defaults: {
+        GET: fetchJSON.defaults,
         POST: {
+            data: {},
             options: {},
             headers: {
                 "content-type": "application/json"
             }
         }
     },
-    get(path, data = {}) {
-        return fetchJSON(path, data);
+    get(path, data = {}, options = {}) {
+        return fetchJSON(path, data, options);
     },
     post(url, data, ...options) {
         if (options.length === 0)
@@ -62,7 +64,7 @@ Object.defineProperty($json, "__post_options", {
         delete options["method"];
         const payload = {
             method: "POST",
-            body: JSON.stringify(data),
+            body: JSON.stringify(Object.assign({}, this.defaults.POST.data, data)),
             headers: this.defaults.POST.headers
         };
         const finalPayload = Object.assign({}, payload, options);

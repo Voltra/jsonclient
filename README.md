@@ -1,7 +1,6 @@
 <p align="center"><img src="logo.png" alt="logo" width="300"></p>
 
 
-
 # JsonClient
 
 JsonClient is a JavaScript HTTP client specialized for JSON communications, based upon the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
@@ -97,11 +96,21 @@ There are only two dependencies :
     const {fetch, Request, Response, Headers} = fetchPonyfill();
     ```
 
-    ​
+    
 
   * [whatwg-fetch](https://www.npmjs.com/package/whatwg-fetch) : For old browsers
 
   * [node-fetch](https://www.npmjs.com/package/node-fetch) : For Node-based environments
+
+
+
+## Changes
+
+### v1.3.0
+
+Updated `fetchJSON` dependency to use its version `2.1.0` and provide defaults and customization to `$json.get`.
+
+Updated `$json.post` to expose defaults for the `data` argument.
 
 
 
