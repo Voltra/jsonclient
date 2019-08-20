@@ -1,6 +1,6 @@
 {
   "name": "@voltra/json",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "a JavaScript HTTP client specialized for JSON communications, based upon the Fetch API",
   "main": "build-babel/jsonclient.js",
   "scripts": {
