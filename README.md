@@ -1,6 +1,5 @@
 <p align="center"><img src="logo.png" alt="logo" width="300"></p>
 
-
 # JsonClient
 
 JsonClient is a JavaScript HTTP client specialized for JSON communications, based upon the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
@@ -51,11 +50,11 @@ Therefore, this library enables you to ease your job at emitting POST requests.
 $json.post :: (
 	url: string,
 	data: any,
-	cache: $json.postOptionsEnums.Cache,
-	credentials: $json.postOptionsEnums.Credentials,
-	mode: $json.postOptionsEnums.Mode,
-	redirect: $json.postOptionsEnums.Redirect,
-	referrer: $json.postOptionsEnums.Referrer
+	cache: $json.enums.Cache,
+	credentials: $json.enums.Credentials,
+	mode: $json.enums.Mode,
+	redirect: $json.enums.Redirect,
+	referrer: $json.enums.Referrer
 ) -> Promise
 ```
 
@@ -105,6 +104,14 @@ There are only two dependencies :
 
 
 ## Changes
+
+### v2.0.0
+
+Renamed `$json.postOptionsEnums` to `$json.enums`. 
+
+Added support for `PUT`, `DELETE` and `PATCH` methods (`$json.put`, `$json.delete` and `$json.patch` have the same signature as `$json.post`).
+
+Added support for method override via `$json.method`, it follows the same signature as `$json.post` but adds the first parameter `method` which designate the HTTP method to override. It exposes `X-HTTP-Method-Override`, `X-Method-Override` and `X-HTTP-Method` headers with the provided values. It also exposes default bound versions (`$json.method.put`, `$json.method.delete` and `$json.method.patch`) that have the same signature as `$json.post`. 
 
 ### v1.3.0
 

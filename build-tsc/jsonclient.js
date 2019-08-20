@@ -76,9 +76,7 @@ $json["__method_options"] = function (method, url, data, options) {
         body: JSON.stringify(mergeDeep({}, this.defaults[method].data, data)),
         headers: this.defaults[method].headers
     };
-    console.log({ payload });
     const finalPayload = mergeDeep({}, payload, options);
-    console.log({ finalPayload });
     const promise = new Promise((resolve, reject) => {
         const f = fetch(url, finalPayload);
         f.then(response => {
