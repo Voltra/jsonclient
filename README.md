@@ -105,6 +105,10 @@ There are only two dependencies :
 
 ## Changes
 
+### v2.1.0
+
+Updated `fetchJSON` to use its latest version (v2.2.0)
+
 ### v2.0.0
 
 Renamed `$json.postOptionsEnums` to `$json.enums`. 
