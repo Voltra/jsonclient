@@ -4,10 +4,10 @@ import { MiddlewareStack } from "./MiddlewareStack"
 
 // @factory("create")
 export class Middlewares{
-	protected beforeRequest: MiddlewareStack<JsonClientRequest>;
-	protected beforeResponse: MiddlewareStack<Response>;
-	protected afterResponse: MiddlewareStack<Json>;
-	protected afterError: MiddlewareStack<FetchError>;
+	public readonly beforeRequest: MiddlewareStack<JsonClientRequest>;
+	public readonly beforeResponse: MiddlewareStack<Response>;
+	public readonly afterResponse: MiddlewareStack<Json>;
+	public readonly afterError: MiddlewareStack<FetchError>;
 
 	public constructor(){
 		[
@@ -22,22 +22,22 @@ export class Middlewares{
 		return new this();
 	}
 
-	public pipeBeforeRequest(mw: Middleware<JsonClientRequest>): ThisType<this>{
+	public pipeBeforeRequest(mw: Middleware<JsonClientRequest>): this{
 		this.beforeRequest.pipe(mw);
 		return this;
 	}
 
-	public pipeBeforeResponse(mw: Middleware<Response>): ThisType<this>{
+	public pipeBeforeResponse(mw: Middleware<Response>): this{
 		this.beforeResponse.pipe(mw);
 		return this;
 	}
 
-	public pipeAfterResponse(mw: Middleware<Json>): ThisType<this>{
+	public pipeAfterResponse(mw: Middleware<Json>): this{
 		this.afterResponse.pipe(mw);
 		return this;
 	}
 
-	public pipeAfterError(mw: Middleware<FetchError>): ThisType<this>{
+	public pipeAfterError(mw: Middleware<FetchError>): this{
 		this.afterError.pipe(mw);
 		return this;
 	}

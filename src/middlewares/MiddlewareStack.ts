@@ -21,12 +21,12 @@ export class MiddlewareStack<T>{
 		return !(index < 0 || index >= this.length);
 	}
 
-	public pipe(middleware: Middleware<T>): ThisType<this>{
+	public pipe(middleware: Middleware<T>): this{
 		this.stack.push(middleware);
 		return this;
 	}
 
-	public removeAt(index: number): ThisType<this>{
+	public removeAt(index: number): this{
 		if(!this.validIndex(index))
 			return this;
 
@@ -52,7 +52,11 @@ export class MiddlewareStack<T>{
 		if(current === null)
 			return obj;
 
-		const res = current.process(obj, obj => this.__execute(obj, index + 1));
-		return res instanceof Promise ? res : Promise.resolve(res);
+		try{
+			const res = current(obj, obj => this.__execute(obj, index + 1));
+			return res instanceof Promise ? res : Promise.resolve(res);
+		}catch(e){
+			return Promise.reject(e);
+		}
 	}
 };

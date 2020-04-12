@@ -6,6 +6,7 @@ import { Referrer } from "./enums/Referrer"
 import { mergeDeep, check, objToQueryString } from "./utils"
 import { MiddlewareStack } from "./middlewares/MiddlewareStack"
 import { Middlewares } from "./middlewares/Middlewares"
+import { processQueryString, typeCheckData, typeCheckPath, responseHandler } from "./middlewares"
 import * as fetchJSON from "fetch_json"
 
 const getDefaults = () => ({
@@ -41,21 +42,37 @@ class JsonClient{
 		PATCH: postDefaults(),
 	}
 
+	public middlewares = {
+		GET: Middlewares.create(),
+		POST: Middlewares.create(),
+		PUT: Middlewares.create(),
+		DELETE: Middlewares.create(),
+		PATCH: Middlewares.create(),
+	}
+
+	private pipeGlobalMiddlewares(){
+		["GET", "POST", "PUT", "DELETE", "PATCH"]
+		.forEach(method => {
+			this.middlewares[method]
+			// Before Requst
+			.pipeBeforeRequest(typeCheckPath)
+			.pipeBeforeRequest(typeCheckData)
+			//BeforeResponse
+			.pipeBeforeResponse(responseHandler)
+		});
+	}
+
+	private pipeGetMiddlewares(){
+		this.middlewares.GET
+		.pipeBeforeRequest(({ path, data, options }) => {
+			const newData = mergeDeep(
+				{},
+				this.defaults.globals.qs || {},
+				this.defaults.GET.qs || {},
+				data,
+			);
 
 
-	public constuctor(){}
-
-
-	public async get(path: string, data: object = {}, options: object = {}){
-		data = mergeDeep({}, fetchJSON.defaults.qs, data);
-
-		if(typeof data != "object" || data === null)
-			throw new TypeError("'data' must be an Object");
-
-		Object.values(data).forEach(check);
-		const qstring = objToQueryString(path, data);
-
-		if(typeof path == "string"){
 			const fetchOptions = mergeDeep(
 				{},
 				this.defaults.globals.options,
@@ -71,15 +88,32 @@ class JsonClient{
 				fetchOptions.headers || {}
 			);
 
-			try{
-				const response = await fetch(path + qstring, fetchOptions);
-				return response.json();
-			}catch(e){
-				const error = "Something went wrong during data inspection (data is not JSON or couldn't reach file)";
-				return Promise.reject(error);
-			}
-		}else{
-			return Promise.reject("The 1st argument must be a string");
+			return {
+				path,
+				data: newData,
+				options: fetchOptions,
+			};
+		}).pipeBeforeRequest(processQueryString);
+	}
+
+	public constuctor(){
+		this.pipeGlobalMiddlewares();
+	}
+
+
+	public async get(path: string, data: object = {}, options: object = {}){
+		try{
+			const { path: fetchPath, options: fetchOptions } = await this.middlewares.GET.beforeRequest.execute({
+				path,
+				data,
+				options,
+			});
+
+			const response = await fetch(fetchPath, fetchOptions);
+			const parsedResponse = await this.middlewares.GET.beforeResponse.execute(response);
+			return this.middlewares.GET.afterResponse.execute(parsedResponse);
+		}catch(e){
+			return this.middlewares.GET.afterError.execute(e);
 		}
 	}
 
