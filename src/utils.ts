@@ -81,3 +81,13 @@ export const objToQueryString = function(path, data){
 
 	return qstring;
 }
+
+export function factory(name: string){
+	return function<T extends { new(...args: any[]): {} }>(constructor: T){
+		return class extends constructor{
+			static [name](...args: any[]){
+				return new this(...args);
+			}
+		};
+	}
+};
