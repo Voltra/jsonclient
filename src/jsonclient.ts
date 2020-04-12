@@ -96,14 +96,48 @@ class JsonClient{
 		}).pipeBeforeRequest(processQueryString);
 	}
 
+	private pipePostLikeMiddlewares(){
+		["POST", "PUT", "DELETE", "PATCH"]
+		.forEach(method => {
+			this.middlewares[method]
+				.pipeBeforeRequest(({ path, data, options }) => {
+					delete options["body"];
+					delete options["method"];
+
+					const payload = {
+						method,
+						body: JSON.stringify(mergeDeep(
+							{},
+							this.defaults.globals.data,
+							this.defaults[method].data,
+							data
+						)),
+						headers: this.defaults[method].headers,
+					};
+
+					const finalPayload = mergeDeep({}, payload, options);
+					return {
+						path,
+						data: finalPayload,
+						options,
+					};
+				})
+		});
+	}
+
 	public constuctor(){
 		this.pipeGlobalMiddlewares();
+		this.pipeGetMiddlewares();
+		this.pipePostLikeMiddlewares();
 	}
 
 
 	public async get(path: string, data: object = {}, options: object = {}){
 		try{
-			const { path: fetchPath, options: fetchOptions } = await this.middlewares.GET.beforeRequest.execute({
+			const {
+				path: fetchPath,
+				options: fetchOptions,
+			} = await this.middlewares.GET.beforeRequest.execute({
 				path,
 				data,
 				options,
@@ -116,109 +150,12 @@ class JsonClient{
 			return this.middlewares.GET.afterError.execute(e);
 		}
 	}
-
-
-	public method(
-		method: string,
-		url: string,
-		data: any,
-		...options: any[]
-	): Promise<any> | null {
-		const METHOD = method.toUpperCase();
-		const $options = {
-			headers: {
-				"X-HTTP-Method-Override": METHOD,
-				"X-HTTP-Method": METHOD,
-				"X-Method-Override": METHOD,
-			},
-		};
-		if (options.length === 0)
-			return this.__method_options(
-				METHOD,
-				url,
-				data,
-				$options
-			);
-
-		if (options.length === 5) {
-			const cache = options[0] as Cache;
-			const credentials = options[1] as Credentials;
-			const mode = options[2] as Mode;
-			const redirect = options[3] as Redirect;
-			const referrer = options[4] as Referrer;
-
-			return this.__method_options(
-				METHOD,
-				url,
-				data,
-				mergeDeep({}, $options, {
-					cache,
-					credentials,
-					mode,
-					redirect,
-					referrer,
-				})
-			);
-		}
-
-		if (options.length === 1) {
-			const optionsObj = options[0] as object;
-			return this.__method_options(
-				METHOD,
-				url,
-				data,
-				mergeDeep({}, $options, optionsObj)
-			);
-		}
-
-		return null;
-	}
-
-	private async __method_options(
-		method: string,
-		url: string,
-		data: any,
-		options: object
-	): Promise<any> {
-		delete options["body"];
-		delete options["method"];
-
-		const payload = {
-			method,
-			body: JSON.stringify(mergeDeep(
-				{},
-				this.defaults.globals.data,
-				this.defaults[method].data,
-				data
-			)),
-			headers: mergeDeep(
-				{},
-				this.defaults.globals.headers,
-				this.defaults[method].headers
-			),
-		};
-
-		const finalPayload = mergeDeep({}, payload, options);
-
-		try{
-			const response = await fetch(url, finalPayload);
-			return response.json();
-		}catch(e){
-			const error = "Something went wrong during data inspection (data is not JSON)";
-			return Promise.reject(error);
-		}
-	}
 }
 
 
 
 ["post", "put", "delete", "patch"].forEach(method => {
 	const METHOD = method.toUpperCase();
-
-	if (method != "post")
-		JsonClient.prototype.method[method] = function(...args){
-			return this.method(METHOD, ...args);
-		};
 
 	JsonClient.prototype[method] = function(
 		url: string,
@@ -243,7 +180,7 @@ class JsonClient{
 				mode,
 				redirect,
 				referrer
-			) as Promise<any>;
+			);
 		}
 
 		if (options.length === 1) {
@@ -252,7 +189,7 @@ class JsonClient{
 				url,
 				data,
 				optionsObj
-			) as Promise<any>;
+			);
 		}
 
 		return null;
@@ -264,7 +201,7 @@ class JsonClient{
 				url,
 				data,
 				this.defaults[METHOD].options
-			) as Promise<any>;
+			);
 		},
 	});
 
@@ -294,28 +231,21 @@ class JsonClient{
 
 	Object.defineProperty(JsonClient.prototype, `__${method}_options`, {
 		value: async function(url: string, data: any, options: object): Promise<any> {
-			delete options["body"];
-			delete options["method"];
-
-			const payload = {
-				method: METHOD,
-				body: JSON.stringify(mergeDeep(
-					{},
-					this.defaults.globals.data,
-					this.defaults[METHOD].data,
-					data
-				)),
-				headers: this.defaults[METHOD].headers,
-			};
-
-			const finalPayload = mergeDeep({}, payload, options);
-
 			try{
-				const response = await fetch(url, finalPayload);
-				return response.json();
+				const {
+					path: fetchPath,
+					data: finalPayload,
+				} = await this.middlewares.GET.beforeRequest.execute({
+					path: url,
+					data,
+					options,
+				});
+
+				const response = await fetch(fetchPath, finalPayload);
+				const parsedResponse = await this.middlewares[METHOD].beforeResponse.execute(response);
+				return this.middlewares[METHOD].afterResponse.execute(parsedResponse);
 			}catch(e){
-				const error = "Something went wrong during data inspection (data is not JSON)";
-				return Promise.reject(error);
+				return this.middlewares[METHOD].afterError.execute(e);
 			}
 		},
 	});
