@@ -4,6 +4,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -62,35 +64,71 @@ var JsonClient = function () {
         value: function constuctor() {}
     }, {
         key: "get",
-        value: function get(path) {
-            var _this = this;
+        value: function () {
+            var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(path) {
+                var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+                var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+                var qstring, fetchOptions, response, error;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                data = utils_1.mergeDeep({}, fetchJSON.defaults.qs, data);
 
-            var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-            var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+                                if (!((typeof data === "undefined" ? "undefined" : _typeof(data)) != "object" || data === null)) {
+                                    _context.next = 3;
+                                    break;
+                                }
 
-            data = utils_1.mergeDeep({}, fetchJSON.defaults.qs, data);
-            if ((typeof data === "undefined" ? "undefined" : _typeof(data)) != "object" || data === null) throw new TypeError("'data' must be an Object");
-            Object.values(data).forEach(utils_1.check);
-            var qstring = utils_1.objToQueryString(path, data);
-            return new Promise(function (resolve, reject) {
-                if (typeof path == "string") {
-                    var fetchOptions = utils_1.mergeDeep({}, _this.defaults.globals.options, _this.defaults.GET.options || {}, options, { method: "GET" });
-                    fetchOptions.headers = utils_1.mergeDeep({}, _this.defaults.globals.headers, _this.defaults.GET.options || {}, fetchOptions.headers || {});
-                    var f = fetch(path + qstring, fetchOptions);
-                    f.then(function (response) {
-                        return response.json().then(resolve).catch(function (_) {
-                            var error = "Something went wrong during data inspection (data is not JSON or couldn't reach file)";
-                            reject(error);
-                            return Promise.reject(error);
-                        });
-                    });
-                    return f;
-                } else {
-                    if (typeof path != "string") reject("The 1st argument must be a string");
-                    return null;
-                }
-            });
-        }
+                                throw new TypeError("'data' must be an Object");
+
+                            case 3:
+                                Object.values(data).forEach(utils_1.check);
+                                qstring = utils_1.objToQueryString(path, data);
+
+                                if (!(typeof path == "string")) {
+                                    _context.next = 21;
+                                    break;
+                                }
+
+                                fetchOptions = utils_1.mergeDeep({}, this.defaults.globals.options, this.defaults.GET.options || {}, options, { method: "GET" });
+
+                                fetchOptions.headers = utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults.GET.options || {}, fetchOptions.headers || {});
+                                _context.prev = 8;
+                                _context.next = 11;
+                                return fetch(path + qstring, fetchOptions);
+
+                            case 11:
+                                response = _context.sent;
+                                return _context.abrupt("return", response.json());
+
+                            case 15:
+                                _context.prev = 15;
+                                _context.t0 = _context["catch"](8);
+                                error = "Something went wrong during data inspection (data is not JSON or couldn't reach file)";
+                                return _context.abrupt("return", Promise.reject(error));
+
+                            case 19:
+                                _context.next = 22;
+                                break;
+
+                            case 21:
+                                return _context.abrupt("return", Promise.reject("The 1st argument must be a string"));
+
+                            case 22:
+                            case "end":
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, this, [[8, 15]]);
+            }));
+
+            function get(_x3) {
+                return _ref.apply(this, arguments);
+            }
+
+            return get;
+        }()
     }, {
         key: "method",
         value: function method(_method, url, data) {
@@ -125,28 +163,49 @@ var JsonClient = function () {
         }
     }, {
         key: "__method_options",
-        value: function __method_options(method, url, data, options) {
-            delete options["body"];
-            delete options["method"];
-            var payload = {
-                method: "POST",
-                body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[method].data, data)),
-                headers: utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults[method].headers)
-            };
-            var finalPayload = utils_1.mergeDeep({}, payload, options);
-            var promise = new Promise(function (resolve, reject) {
-                var f = fetch(url, finalPayload);
-                f.then(function (response) {
-                    return response.json().then(resolve).catch(function (_) {
-                        var error = "Something went wrong during data inspection (data is not JSON)";
-                        reject(error);
-                        return Promise.reject(error);
-                    });
-                });
-                return f;
-            });
-            return promise;
-        }
+        value: function () {
+            var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(method, url, data, options) {
+                var payload, finalPayload, response, error;
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                    while (1) {
+                        switch (_context2.prev = _context2.next) {
+                            case 0:
+                                delete options["body"];
+                                delete options["method"];
+                                payload = {
+                                    method: method,
+                                    body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[method].data, data)),
+                                    headers: utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults[method].headers)
+                                };
+                                finalPayload = utils_1.mergeDeep({}, payload, options);
+                                _context2.prev = 4;
+                                _context2.next = 7;
+                                return fetch(url, finalPayload);
+
+                            case 7:
+                                response = _context2.sent;
+                                return _context2.abrupt("return", response.json());
+
+                            case 11:
+                                _context2.prev = 11;
+                                _context2.t0 = _context2["catch"](4);
+                                error = "Something went wrong during data inspection (data is not JSON)";
+                                return _context2.abrupt("return", Promise.reject(error));
+
+                            case 15:
+                            case "end":
+                                return _context2.stop();
+                        }
+                    }
+                }, _callee2, this, [[4, 11]]);
+            }));
+
+            function __method_options(_x4, _x5, _x6, _x7) {
+                return _ref2.apply(this, arguments);
+            }
+
+            return __method_options;
+        }()
     }]);
 
     return JsonClient;
@@ -196,28 +255,49 @@ exports.JsonClient = JsonClient;
         }
     });
     Object.defineProperty(JsonClient.prototype, "__" + method + "_options", {
-        value: function value(url, data, options) {
-            delete options["body"];
-            delete options["method"];
-            var payload = {
-                method: METHOD,
-                body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[METHOD].data, data)),
-                headers: this.defaults[METHOD].headers
-            };
-            var finalPayload = utils_1.mergeDeep({}, payload, options);
-            var promise = new Promise(function (resolve, reject) {
-                var f = fetch(url, finalPayload);
-                f.then(function (response) {
-                    return response.json().then(resolve).catch(function (_) {
-                        var error = "Something went wrong during data inspection (data is not JSON)";
-                        reject(error);
-                        return Promise.reject(error);
-                    });
-                });
-                return f;
-            });
-            return promise;
-        }
+        value: function () {
+            var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(url, data, options) {
+                var payload, finalPayload, response, error;
+                return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                    while (1) {
+                        switch (_context3.prev = _context3.next) {
+                            case 0:
+                                delete options["body"];
+                                delete options["method"];
+                                payload = {
+                                    method: METHOD,
+                                    body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[METHOD].data, data)),
+                                    headers: this.defaults[METHOD].headers
+                                };
+                                finalPayload = utils_1.mergeDeep({}, payload, options);
+                                _context3.prev = 4;
+                                _context3.next = 7;
+                                return fetch(url, finalPayload);
+
+                            case 7:
+                                response = _context3.sent;
+                                return _context3.abrupt("return", response.json());
+
+                            case 11:
+                                _context3.prev = 11;
+                                _context3.t0 = _context3["catch"](4);
+                                error = "Something went wrong during data inspection (data is not JSON)";
+                                return _context3.abrupt("return", Promise.reject(error));
+
+                            case 15:
+                            case "end":
+                                return _context3.stop();
+                        }
+                    }
+                }, _callee3, this, [[4, 11]]);
+            }));
+
+            function value(_x8, _x9, _x10) {
+                return _ref3.apply(this, arguments);
+            }
+
+            return value;
+        }()
     });
 });
 var $json = new JsonClient();

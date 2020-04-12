@@ -43,34 +43,27 @@ class JsonClient {
         };
     }
     constuctor() { }
-    get(path, data = {}, options = {}) {
+    async get(path, data = {}, options = {}) {
         data = utils_1.mergeDeep({}, fetchJSON.defaults.qs, data);
         if (typeof data != "object" || data === null)
             throw new TypeError("'data' must be an Object");
         Object.values(data).forEach(utils_1.check);
         const qstring = utils_1.objToQueryString(path, data);
-        return new Promise((resolve, reject) => {
-            if (typeof path == "string") {
-                const fetchOptions = utils_1.mergeDeep({}, this.defaults.globals.options, this.defaults.GET.options || {}, options, { method: "GET" });
-                fetchOptions.headers = utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults.GET.options || {}, fetchOptions.headers || {});
-                const f = fetch(path + qstring, fetchOptions);
-                f.then(response => {
-                    return response.json()
-                        .then(resolve)
-                        .catch(_ => {
-                        const error = "Something went wrong during data inspection (data is not JSON or couldn't reach file)";
-                        reject(error);
-                        return Promise.reject(error);
-                    });
-                });
-                return f;
+        if (typeof path == "string") {
+            const fetchOptions = utils_1.mergeDeep({}, this.defaults.globals.options, this.defaults.GET.options || {}, options, { method: "GET" });
+            fetchOptions.headers = utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults.GET.options || {}, fetchOptions.headers || {});
+            try {
+                const response = await fetch(path + qstring, fetchOptions);
+                return response.json();
             }
-            else {
-                if (typeof path != "string")
-                    reject("The 1st argument must be a string");
-                return null;
+            catch (e) {
+                const error = "Something went wrong during data inspection (data is not JSON or couldn't reach file)";
+                return Promise.reject(error);
             }
-        });
+        }
+        else {
+            return Promise.reject("The 1st argument must be a string");
+        }
     }
     method(method, url, data, ...options) {
         const METHOD = method.toUpperCase();
@@ -103,29 +96,23 @@ class JsonClient {
         }
         return null;
     }
-    __method_options(method, url, data, options) {
+    async __method_options(method, url, data, options) {
         delete options["body"];
         delete options["method"];
         const payload = {
-            method: "POST",
+            method,
             body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[method].data, data)),
             headers: utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults[method].headers),
         };
         const finalPayload = utils_1.mergeDeep({}, payload, options);
-        const promise = new Promise((resolve, reject) => {
-            const f = fetch(url, finalPayload);
-            f.then(response => {
-                return response.json()
-                    .then(resolve)
-                    .catch(_ => {
-                    const error = "Something went wrong during data inspection (data is not JSON)";
-                    reject(error);
-                    return Promise.reject(error);
-                });
-            });
-            return f;
-        });
-        return promise;
+        try {
+            const response = await fetch(url, finalPayload);
+            return response.json();
+        }
+        catch (e) {
+            const error = "Something went wrong during data inspection (data is not JSON)";
+            return Promise.reject(error);
+        }
     }
 }
 exports.JsonClient = JsonClient;
@@ -170,7 +157,7 @@ exports.JsonClient = JsonClient;
         },
     });
     Object.defineProperty(JsonClient.prototype, `__${method}_options`, {
-        value: function (url, data, options) {
+        value: async function (url, data, options) {
             delete options["body"];
             delete options["method"];
             const payload = {
@@ -179,20 +166,14 @@ exports.JsonClient = JsonClient;
                 headers: this.defaults[METHOD].headers,
             };
             const finalPayload = utils_1.mergeDeep({}, payload, options);
-            const promise = new Promise((resolve, reject) => {
-                const f = fetch(url, finalPayload);
-                f.then(response => {
-                    return response.json()
-                        .then(resolve)
-                        .catch(_ => {
-                        const error = "Something went wrong during data inspection (data is not JSON)";
-                        reject(error);
-                        return Promise.reject(error);
-                    });
-                });
-                return f;
-            });
-            return promise;
+            try {
+                const response = await fetch(url, finalPayload);
+                return response.json();
+            }
+            catch (e) {
+                const error = "Something went wrong during data inspection (data is not JSON)";
+                return Promise.reject(error);
+            }
         },
     });
 });
