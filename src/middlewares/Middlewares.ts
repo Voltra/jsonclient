@@ -1,8 +1,6 @@
 import { JsonClientRequest, Json, FetchError, Middleware } from "./types"
 import { MiddlewareStack } from "./MiddlewareStack"
-// import { factory } from "../utils"
 
-// @factory("create")
 export class Middlewares{
 	public readonly beforeRequest: MiddlewareStack<JsonClientRequest>;
 	public readonly beforeResponse: MiddlewareStack<Response>;
@@ -43,7 +41,7 @@ export class Middlewares{
 	}
 
 
-	public async processReponse(response: Response): Promise<any>{
+	/* public async processReponse(response: Response): Promise<any>{
 		try{
 			let beforeResponse = await this.beforeResponse.execute(response);
 			if(beforeResponse instanceof Response){
@@ -55,5 +53,5 @@ export class Middlewares{
 			const error = await this.afterError.execute(e);
 			throw error;
 		}
-	}
+	} */
 }

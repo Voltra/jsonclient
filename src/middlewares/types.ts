@@ -1,4 +1,4 @@
-export type Middleware<T> = (obj: T, next: (obj: T) => any) => Promise<any>|any;
+export type Middleware<T> = (obj: T) => Promise<any>|any;
 
 export interface JsonClientRequest{
 	path: string;

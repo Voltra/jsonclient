@@ -1,112 +1,154 @@
-"use strict";
+(function (global, factory) {
+  if (typeof define === "function" && define.amd) {
+    define(["@babel/runtime/helpers/construct", "@babel/runtime/helpers/classCallCheck", "@babel/runtime/helpers/createClass", "@babel/runtime/helpers/inherits", "@babel/runtime/helpers/possibleConstructorReturn", "@babel/runtime/helpers/getPrototypeOf", "@babel/runtime/helpers/slicedToArray", "@babel/runtime/helpers/defineProperty", "@babel/runtime/helpers/typeof"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(require("@babel/runtime/helpers/construct"), require("@babel/runtime/helpers/classCallCheck"), require("@babel/runtime/helpers/createClass"), require("@babel/runtime/helpers/inherits"), require("@babel/runtime/helpers/possibleConstructorReturn"), require("@babel/runtime/helpers/getPrototypeOf"), require("@babel/runtime/helpers/slicedToArray"), require("@babel/runtime/helpers/defineProperty"), require("@babel/runtime/helpers/typeof"));
+  } else {
+    var mod = {
+      exports: {}
+    };
+    factory(global.construct, global.classCallCheck, global.createClass, global.inherits, global.possibleConstructorReturn, global.getPrototypeOf, global.slicedToArray, global.defineProperty, global._typeof);
+    global.utils = mod.exports;
+  }
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_construct2, _classCallCheck2, _createClass2, _inherits2, _possibleConstructorReturn2, _getPrototypeOf2, _slicedToArray2, _defineProperty2, _typeof2) {
+  "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+  var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+  _construct2 = _interopRequireDefault(_construct2);
+  _classCallCheck2 = _interopRequireDefault(_classCallCheck2);
+  _createClass2 = _interopRequireDefault(_createClass2);
+  _inherits2 = _interopRequireDefault(_inherits2);
+  _possibleConstructorReturn2 = _interopRequireDefault(_possibleConstructorReturn2);
+  _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf2);
+  _slicedToArray2 = _interopRequireDefault(_slicedToArray2);
+  _defineProperty2 = _interopRequireDefault(_defineProperty2);
+  _typeof2 = _interopRequireDefault(_typeof2);
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+  function _createSuper(Derived) { return function () { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+  var sequency_1 = require("sequency");
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+  function isObject(item) {
+    return item && (0, _typeof2["default"])(item) === "object" && !Array.isArray(item);
+  }
 
-Object.defineProperty(exports, "__esModule", { value: true });
-var sequency_1 = require("sequency");
-function isObject(item) {
-    return item && (typeof item === "undefined" ? "undefined" : _typeof(item)) === "object" && !Array.isArray(item);
-}
-exports.isObject = isObject;
-function mergeDeep(target) {
-    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        sources[_key - 1] = arguments[_key];
+  exports.isObject = isObject;
+
+  function mergeDeep(target) {
+    for (var _len = arguments.length, sources = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      sources[_key - 1] = arguments[_key];
     }
 
     if (!sources.length) return target;
     var source = sources.shift();
+
     if (isObject(target) && isObject(source)) {
-        for (var key in source) {
-            if (isObject(source[key])) {
-                if (!target[key]) Object.assign(target, _defineProperty({}, key, {}));
-                mergeDeep(target[key], source[key]);
-            } else {
-                Object.assign(target, _defineProperty({}, key, source[key]));
-            }
+      for (var key in source) {
+        if (isObject(source[key])) {
+          if (!target[key]) Object.assign(target, (0, _defineProperty2["default"])({}, key, {}));
+          mergeDeep(target[key], source[key]);
+        } else {
+          Object.assign(target, (0, _defineProperty2["default"])({}, key, source[key]));
         }
+      }
     }
-    return mergeDeep.apply(undefined, [target].concat(sources));
-}
-exports.mergeDeep = mergeDeep;
-exports.check = function (elem) {
+
+    return mergeDeep.apply(void 0, [target].concat(sources));
+  }
+
+  exports.mergeDeep = mergeDeep;
+
+  exports.check = function (elem) {
     var innerCheck = function innerCheck(elem) {
-        if (!(typeof elem == "string" || typeof elem == "number")) throw new TypeError("Invalid data object (elements are not all arrays of strings/numbers or strings or numbers)");
+      if (!(typeof elem == "string" || typeof elem == "number")) throw new TypeError("Invalid data object (elements are not all arrays of strings/numbers or strings or numbers)");
     };
+
     if (elem instanceof Array) {
-        elem.forEach(innerCheck);
-        return;
+      elem.forEach(innerCheck);
+      return;
     }
+
     innerCheck(elem);
-};
-exports.primitiveToQstring = function (e) {
+  };
+
+  exports.primitiveToQstring = function (e) {
     return encodeURIComponent(e.key) + "=" + encodeURIComponent(e.value);
-};
-exports.objToQueryString = function (path, data) {
+  };
+
+  exports.objToQueryString = function (path, data) {
     var qstring = sequency_1.asSequence(Object.entries(data)).map(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            key = _ref2[0],
-            value = _ref2[1];
+      var _ref2 = (0, _slicedToArray2["default"])(_ref, 2),
+          key = _ref2[0],
+          value = _ref2[1];
 
-        return { key: key, value: value };
+      return {
+        key: key,
+        value: value
+      };
     }).map(function (_ref3) {
-        var key = _ref3.key,
-            value = _ref3.value;
+      var key = _ref3.key,
+          value = _ref3.value;
 
-        if (value instanceof Array) {
-            return sequency_1.asSequence(value).map(function (val) {
-                return { key: key, value: val };
-            }).map(exports.primitiveToQstring).joinToString({
-                separator: "&"
-            });
-        }
-        return exports.primitiveToQstring({ key: key, value: value });
+      if (value instanceof Array) {
+        return sequency_1.asSequence(value).map(function (val) {
+          return {
+            key: key,
+            value: val
+          };
+        }).map(exports.primitiveToQstring).joinToString({
+          separator: "&"
+        });
+      }
+
+      return exports.primitiveToQstring({
+        key: key,
+        value: value
+      });
     }).joinToString({
-        separator: "&"
+      separator: "&"
     });
+
     if (qstring !== "") {
-        if (!/\?/.test(path)) return "?" + qstring;else if (!/\?$/.test(path)) return (/&$/.test(path) ? qstring : "&" + qstring
-        );
+      if (!/\?/.test(path)) return "?" + qstring;else if (!/\?$/.test(path)) return /&$/.test(path) ? qstring : "&" + qstring;
     }
+
     return qstring;
-};
-function factory(name) {
+  };
+
+  function factory(name) {
     return function (constructor) {
-        return function (_constructor) {
-            _inherits(_class, _constructor);
+      return /*#__PURE__*/function (_constructor) {
+        (0, _inherits2["default"])(_class, _constructor);
 
-            function _class() {
-                _classCallCheck(this, _class);
+        var _super = _createSuper(_class);
 
-                return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+        function _class() {
+          (0, _classCallCheck2["default"])(this, _class);
+          return _super.apply(this, arguments);
+        }
+
+        (0, _createClass2["default"])(_class, null, [{
+          key: name,
+          value: function value() {
+            for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+              args[_key2] = arguments[_key2];
             }
 
-            _createClass(_class, null, [{
-                key: name,
-                value: function value() {
-                    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                        args[_key2] = arguments[_key2];
-                    }
-
-                    return new (Function.prototype.bind.apply(this, [null].concat(args)))();
-                }
-            }]);
-
-            return _class;
-        }(constructor);
+            return (0, _construct2["default"])(this, args);
+          }
+        }]);
+        return _class;
+      }(constructor);
     };
-}
-exports.factory = factory;
-;
-//# sourceMappingURL=utils.js.map
+  }
+
+  exports.factory = factory;
+  ;
+});

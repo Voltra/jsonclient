@@ -29,19 +29,6 @@ class Middlewares {
         this.afterError.pipe(mw);
         return this;
     }
-    async processReponse(response) {
-        try {
-            let beforeResponse = await this.beforeResponse.execute(response);
-            if (beforeResponse instanceof Response) {
-                beforeResponse = await beforeResponse.json();
-            }
-            return this.afterResponse.execute(beforeResponse);
-        }
-        catch (e) {
-            const error = await this.afterError.execute(e);
-            throw error;
-        }
-    }
 }
 exports.Middlewares = Middlewares;
 //# sourceMappingURL=Middlewares.js.map

@@ -7,18 +7,21 @@ import { mergeDeep, check, objToQueryString } from "./utils"
 import { MiddlewareStack } from "./middlewares/MiddlewareStack"
 import { Middlewares } from "./middlewares/Middlewares"
 import { processQueryString, typeCheckData, typeCheckPath, responseHandler } from "./middlewares"
-import * as fetchJSON from "fetch_json"
 
 const getDefaults = () => ({
 	qs: {},
+	options: {},
+	headers: {},
 });
 
 const postDefaults = () => ({
 	data: {},
+	options: {},
+	headers: {},
 });
 
 class JsonClient{
-	public readonly enums = {
+	public static readonly enums = {
 		Cache,
 		Credentials,
 		Mode,
@@ -42,13 +45,13 @@ class JsonClient{
 		PATCH: postDefaults(),
 	}
 
-	public middlewares = {
+	public middlewares: any = {
 		GET: Middlewares.create(),
 		POST: Middlewares.create(),
 		PUT: Middlewares.create(),
 		DELETE: Middlewares.create(),
 		PATCH: Middlewares.create(),
-	}
+	};
 
 	private pipeGlobalMiddlewares(){
 		["GET", "POST", "PUT", "DELETE", "PATCH"]
@@ -101,8 +104,8 @@ class JsonClient{
 		.forEach(method => {
 			this.middlewares[method]
 				.pipeBeforeRequest(({ path, data, options }) => {
-					delete options["body"];
-					delete options["method"];
+					/*delete options["body"];
+					delete options["method"];*/
 
 					const payload = {
 						method,
@@ -112,20 +115,31 @@ class JsonClient{
 							this.defaults[method].data,
 							data
 						)),
-						headers: this.defaults[method].headers,
+						headers: mergeDeep(
+							{},
+							this.defaults.globals.headers,
+							this.defaults[method].headers,
+						),
 					};
 
-					const finalPayload = mergeDeep({}, payload, options);
+					const finalPayload = mergeDeep(
+						{},
+						this.defaults.globals.options,
+						this.defaults[method].options,
+						payload,
+						options
+					);
+
 					return {
 						path,
-						data: finalPayload,
-						options,
+						data,
+						options: finalPayload,
 					};
 				})
 		});
 	}
 
-	public constuctor(){
+	constructor(){
 		this.pipeGlobalMiddlewares();
 		this.pipeGetMiddlewares();
 		this.pipePostLikeMiddlewares();
@@ -133,28 +147,30 @@ class JsonClient{
 
 
 	public async get(path: string, data: object = {}, options: object = {}){
+		const middlewares = this.middlewares.GET;
 		try{
 			const {
 				path: fetchPath,
 				options: fetchOptions,
-			} = await this.middlewares.GET.beforeRequest.execute({
+			} = await middlewares.beforeRequest.execute({
 				path,
 				data,
 				options,
 			});
 
 			const response = await fetch(fetchPath, fetchOptions);
-			const parsedResponse = await this.middlewares.GET.beforeResponse.execute(response);
-			return this.middlewares.GET.afterResponse.execute(parsedResponse);
+			const parsedResponse = await middlewares.beforeResponse.execute(response);
+			return middlewares.afterResponse.execute(parsedResponse);
 		}catch(e){
-			return this.middlewares.GET.afterError.execute(e);
+			const err = await middlewares.afterError.execute(e);
+			throw err;
 		}
 	}
 }
 
 
 
-["post", "put", "delete", "patch"].forEach(method => {
+["post", "put", "delete", "patch"].forEach(method => { //TODO: Fix pb where would call GET fo everything
 	const METHOD = method.toUpperCase();
 
 	JsonClient.prototype[method] = function(
@@ -163,7 +179,7 @@ class JsonClient{
 		...options: any[]
 	): Promise<any> | null {
 		if (options.length === 0)
-			return this[`__${method}_data`](url, data) as Promise<any>;
+			return this[`__${method}_data`](url, data);
 
 		if (options.length === 5) {
 			const cache = options[0] as Cache;
@@ -192,21 +208,18 @@ class JsonClient{
 			);
 		}
 
-		return null;
+		return Promise.reject(`Invalid $json.${method} call`);
 	};
 
-	Object.defineProperty(JsonClient.prototype, `__${method}_data`, {
-		value: function(url: string, data: any): Promise<any> {
-			return this[`__${method}_options`](
-				url,
-				data,
-				this.defaults[METHOD].options
-			);
-		},
-	});
+	JsonClient.prototype[`__${method}_data`] = function(url: string, data: any = {}): Promise<any> {
+		return this[`__${method}_options`](
+			url,
+			data,
+			this.defaults[METHOD].options
+		);
+	};
 
-	Object.defineProperty(JsonClient.prototype, `__${method}_allArgs`, {
-		value: function(
+	JsonClient.prototype[`__${method}_allArgs`] = function(
 			url: string,
 			data: any,
 			cache: Cache,
@@ -215,40 +228,37 @@ class JsonClient{
 			redirect: Redirect,
 			referrer: Referrer
 		): Promise<any> {
-			const payload = {
-				cache,
-				credentials,
-				mode,
-				redirect,
-				referrer,
-			};
+		const payload = {
+			cache,
+			credentials,
+			mode,
+			redirect,
+			referrer,
+		};
 
-			return this[`__${method}_options`](url, data, payload) as Promise<
-				any
-			>;
-		},
-	});
+		return this[`__${method}_options`](url, data, payload);
+	};
 
-	Object.defineProperty(JsonClient.prototype, `__${method}_options`, {
-		value: async function(url: string, data: any, options: object): Promise<any> {
-			try{
-				const {
-					path: fetchPath,
-					data: finalPayload,
-				} = await this.middlewares.GET.beforeRequest.execute({
-					path: url,
-					data,
-					options,
-				});
+	JsonClient.prototype[`__${method}_options`] = async function(url: string, data: any, options: object): Promise<any> {
+		const middlewares = this.middlewares[METHOD];
+		try{
+			const {
+				path: fetchPath,
+				options: finalPayload,
+			} = await middlewares.beforeRequest.execute({
+				path: url,
+				data,
+				options,
+			});
 
-				const response = await fetch(fetchPath, finalPayload);
-				const parsedResponse = await this.middlewares[METHOD].beforeResponse.execute(response);
-				return this.middlewares[METHOD].afterResponse.execute(parsedResponse);
-			}catch(e){
-				return this.middlewares[METHOD].afterError.execute(e);
-			}
-		},
-	});
+			const response = await fetch(fetchPath, finalPayload);
+			const parsedResponse = await middlewares.beforeResponse.execute(response);
+			return middlewares.afterResponse.execute(parsedResponse);
+		}catch(e){
+			const err = await middlewares.afterError.execute(e);
+			throw err;
+		}
+	};
 });
 
 

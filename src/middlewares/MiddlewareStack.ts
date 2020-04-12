@@ -18,7 +18,7 @@ export class MiddlewareStack<T>{
 	}
 
 	private validIndex(index: number): boolean{
-		return !(index < 0 || index >= this.length);
+		return 0 <= index && index < this.length;
 	}
 
 	public pipe(middleware: Middleware<T>): this{
@@ -39,7 +39,7 @@ export class MiddlewareStack<T>{
 	}
 
 	public at(index: number): Middleware<T> | null{
-		return this.stack[index] || null;
+		return this.validIndex(index) ? this.stack[index] : null;
 	}
 
 	public execute(obj: T): Promise<any> {
@@ -53,8 +53,9 @@ export class MiddlewareStack<T>{
 			return obj;
 
 		try{
-			const res = current(obj, obj => this.__execute(obj, index + 1));
-			return res instanceof Promise ? res : Promise.resolve(res);
+			const res = current(obj);
+			const promise = res instanceof Promise ? res : Promise.resolve(res);
+			return promise.then(obj => this.__execute(obj, index + 1));
 		}catch(e){
 			return Promise.reject(e);
 		}

@@ -1,7 +1,5 @@
-import { mergeDeep, check, objToQueryString } from "./utils"
-import { MiddlewareStack } from "./MiddlewareStack"
-import { Middlewares } from "./Middlewares"
-import { Middleware, JsonClientRequest, FetchError } from "./types"
+import { check, objToQueryString } from "../utils"
+import { Middleware, JsonClientRequest } from "./types"
 
 export const typeCheckPath: Middleware<JsonClientRequest> = ({ path, data, options }) => {
 	if(typeof path !== "string")
@@ -15,7 +13,7 @@ export const typeCheckPath: Middleware<JsonClientRequest> = ({ path, data, optio
 };
 
 export const typeCheckData: Middleware<JsonClientRequest> = ({ path, data, options }) => {
-	if(typeof data != "object" || data === null)
+	if(typeof data !== "object" || data === null)
 		throw new TypeError("'data' must be an Object");
 
 	return {
@@ -42,7 +40,10 @@ export const responseHandler: Middleware<Response> = async response => {
 	try{
 		const json = await response.json();
 		return Promise.reject(json);
-	}catch(e){
-		return Promise.reject(e);
+	}catch(error){
+		return Promise.reject({
+			response,
+			error,
+		});
 	}
 };

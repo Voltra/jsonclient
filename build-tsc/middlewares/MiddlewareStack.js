@@ -11,7 +11,7 @@ class MiddlewareStack {
         return this.stack.length;
     }
     validIndex(index) {
-        return !(index < 0 || index >= this.length);
+        return 0 <= index && index < this.length;
     }
     pipe(middleware) {
         this.stack.push(middleware);
@@ -27,7 +27,7 @@ class MiddlewareStack {
         return this;
     }
     at(index) {
-        return this.stack[index] || null;
+        return this.validIndex(index) ? this.stack[index] : null;
     }
     execute(obj) {
         return this.__execute(obj, 0);
@@ -36,8 +36,14 @@ class MiddlewareStack {
         const current = this.at(index);
         if (current === null)
             return obj;
-        const res = current.process(obj, obj => this.__execute(obj, index + 1));
-        return res instanceof Promise ? res : Promise.resolve(res);
+        try {
+            const res = current(obj);
+            const promise = res instanceof Promise ? res : Promise.resolve(res);
+            return promise.then(obj => this.__execute(obj, index + 1));
+        }
+        catch (e) {
+            return Promise.reject(e);
+        }
     }
 }
 exports.MiddlewareStack = MiddlewareStack;

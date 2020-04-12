@@ -6,10 +6,12 @@ module.exports = {
     mode: "production",
     target: "web",
     // devtool: "source-map",
-    entry: "./src/jsonclient.js",
+	entry: "./build-babel/jsonclient.js",
     output: {
         filename: "jsonclient.js",
-        path: path.resolve(thisPath, "dist")
+		path: path.resolve(thisPath, "dist"),
+		libraryTarget: "umd",
+		library: "jsonclient",
     },
     resolve: {
         alias: {
