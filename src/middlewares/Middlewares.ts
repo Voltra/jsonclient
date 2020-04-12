@@ -1,9 +1,9 @@
 import { JsonClientRequest, Json, FetchError, Middleware } from "./types"
 import { MiddlewareStack } from "./MiddlewareStack"
-import { factory } from "../utils"
+// import { factory } from "../utils"
 
-@factory("create")
-class Middlewares{
+// @factory("create")
+export class Middlewares{
 	protected beforeRequest: MiddlewareStack<JsonClientRequest>;
 	protected beforeResponse: MiddlewareStack<Response>;
 	protected afterResponse: MiddlewareStack<Json>;
@@ -16,6 +16,10 @@ class Middlewares{
 			"afterResponse",
 			"afterError",
 		].forEach(ms => this[ms] = MiddlewareStack.empty());
+	}
+
+	public static create(){
+		return new this();
 	}
 
 	public pipeBeforeRequest(mw: Middleware<JsonClientRequest>): ThisType<this>{

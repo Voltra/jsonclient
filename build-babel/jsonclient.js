@@ -13,6 +13,10 @@ var Mode_1 = require("./enums/Mode");
 var Redirect_1 = require("./enums/Redirect");
 var Referrer_1 = require("./enums/Referrer");
 var utils_1 = require("./utils");
+var MiddlewareStack_1 = require("./middlewares/MiddlewareStack");
+exports.MiddlewareStack = MiddlewareStack_1.MiddlewareStack;
+var Middlewares_1 = require("./middlewares/Middlewares");
+exports.Middlewares = Middlewares_1.Middlewares;
 var fetchJSON = require("fetch_json");
 var getDefaults = function getDefaults() {
     return {

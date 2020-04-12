@@ -4,6 +4,8 @@ import { Mode } from "./enums/Mode"
 import { Redirect } from "./enums/Redirect"
 import { Referrer } from "./enums/Referrer"
 import { mergeDeep, check, objToQueryString } from "./utils"
+import { MiddlewareStack } from "./middlewares/MiddlewareStack"
+import { Middlewares } from "./middlewares/Middlewares"
 import * as fetchJSON from "fetch_json"
 
 const getDefaults = () => ({
@@ -321,4 +323,6 @@ const $json = new JsonClient();
 export {
 	$json,
 	JsonClient,
+	MiddlewareStack,
+	Middlewares,
 };

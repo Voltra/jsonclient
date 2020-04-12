@@ -1,12 +1,16 @@
-import { factory } from "../utils"
+// import { factory } from "../utils"
 import { Middleware } from "./types"
 
-@factory("empty")
+// @factory("empty")
 export class MiddlewareStack<T>{
 	protected stack: Middleware<T>[];
 
 	public constructor(){
 		this.stack = [];
+	}
+
+	public static empty(){
+		return new this();
 	}
 
 	public get length(): number{
@@ -42,10 +46,13 @@ export class MiddlewareStack<T>{
 		return this.__execute(obj, 0);
 	}
 
-	private async __execute(obj: any, index: number): Promise<any> {
+	private __execute(obj: any, index: number): Promise<any> {
 		const current = this.at(index);
-		return current === null
-		? obj
-		: await current.process(obj, obj => this.__execute(obj, index + 1));
+
+		if(current === null)
+			return obj;
+
+		const res = current.process(obj, obj => this.__execute(obj, index + 1));
+		return res instanceof Promise ? res : Promise.resolve(res);
 	}
 };

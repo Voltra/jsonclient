@@ -1,5 +1,5 @@
 export interface Middleware<T>{
-	process(obj: T, next: (obj: T) => any): Promise<any>;
+	process(obj: T, next: (obj: T) => any): Promise<any>|any;
 };
 
 export interface JsonClientRequest{

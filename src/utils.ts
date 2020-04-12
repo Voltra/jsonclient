@@ -83,9 +83,9 @@ export const objToQueryString = function(path, data){
 }
 
 export function factory(name: string){
-	return function<T extends { new(...args: any[]): {} }>(constructor: T){
+	return function<T extends { new(...args: any[]): any }>(constructor: T){
 		return class extends constructor{
-			static [name](...args: any[]){
+			public static [name](...args: any[]){
 				return new this(...args);
 			}
 		};

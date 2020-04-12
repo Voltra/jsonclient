@@ -63,4 +63,15 @@ exports.objToQueryString = function (path, data) {
     }
     return qstring;
 };
+function factory(name) {
+    return function (constructor) {
+        return class extends constructor {
+            static [name](...args) {
+                return new this(...args);
+            }
+        };
+    };
+}
+exports.factory = factory;
+;
 //# sourceMappingURL=utils.js.map

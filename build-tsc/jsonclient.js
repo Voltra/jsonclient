@@ -6,6 +6,10 @@ const Mode_1 = require("./enums/Mode");
 const Redirect_1 = require("./enums/Redirect");
 const Referrer_1 = require("./enums/Referrer");
 const utils_1 = require("./utils");
+const MiddlewareStack_1 = require("./middlewares/MiddlewareStack");
+exports.MiddlewareStack = MiddlewareStack_1.MiddlewareStack;
+const Middlewares_1 = require("./middlewares/Middlewares");
+exports.Middlewares = Middlewares_1.Middlewares;
 const fetchJSON = require("fetch_json");
 const getDefaults = () => ({
     qs: {},
