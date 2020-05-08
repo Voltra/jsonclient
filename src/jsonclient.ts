@@ -6,7 +6,8 @@ import { Referrer } from "./enums/Referrer"
 import { mergeDeep, check, objToQueryString } from "./utils"
 import { MiddlewareStack } from "./middlewares/MiddlewareStack"
 import { Middlewares } from "./middlewares/Middlewares"
-import { processQueryString, typeCheckData, typeCheckPath, responseHandler } from "./middlewares"
+import { installAllDefaults } from "./middlewares"
+import * as middlewares from "./middlewares"
 
 const getDefaults = () => ({
 	qs: {},
@@ -53,96 +54,8 @@ class JsonClient{
 		PATCH: Middlewares.create(),
 	};
 
-	private pipeGlobalMiddlewares(){
-		["GET", "POST", "PUT", "DELETE", "PATCH"]
-		.forEach(method => {
-			this.middlewares[method]
-			// Before Requst
-			.pipeBeforeRequest(typeCheckPath)
-			.pipeBeforeRequest(typeCheckData)
-			//BeforeResponse
-			.pipeBeforeResponse(responseHandler)
-		});
-	}
-
-	private pipeGetMiddlewares(){
-		this.middlewares.GET
-		.pipeBeforeRequest(({ path, data, options }) => {
-			const newData = mergeDeep(
-				{},
-				this.defaults.globals.qs || {},
-				this.defaults.GET.qs || {},
-				data,
-			);
-
-
-			const fetchOptions = mergeDeep(
-				{},
-				this.defaults.globals.options,
-				this.defaults.GET.options || {},
-				options,
-				{method: "GET"}
-			);
-
-			fetchOptions.headers = mergeDeep(
-				{},
-				this.defaults.globals.headers,
-				this.defaults.GET.options || {},
-				fetchOptions.headers || {}
-			);
-
-			return {
-				path,
-				data: newData,
-				options: fetchOptions,
-			};
-		}).pipeBeforeRequest(processQueryString);
-	}
-
-	private pipePostLikeMiddlewares(){
-		["POST", "PUT", "DELETE", "PATCH"]
-		.forEach(method => {
-			this.middlewares[method]
-				.pipeBeforeRequest(({ path, data, options }) => {
-					/*delete options["body"];
-					delete options["method"];*/
-
-					const payload = {
-						method,
-						body: JSON.stringify(mergeDeep(
-							{},
-							this.defaults.globals.data,
-							this.defaults[method].data,
-							data
-						)),
-						headers: mergeDeep(
-							{},
-							this.defaults.globals.headers,
-							this.defaults[method].headers,
-						),
-					};
-
-					const finalPayload = mergeDeep(
-						{},
-						this.defaults.globals.options,
-						this.defaults[method].options,
-						payload,
-						options
-					);
-
-					return {
-						path,
-						data,
-						options: finalPayload,
-					};
-				})
-		});
-	}
-
 	constructor(){
-		this.pipeGlobalMiddlewares();
-		this.pipeGetMiddlewares();
-		this.pipePostLikeMiddlewares();
+		installAllDefaults(this);
 	}
 
 
@@ -170,7 +83,7 @@ class JsonClient{
 
 
 
-["post", "put", "delete", "patch"].forEach(method => { //TODO: Fix pb where would call GET fo everything
+["post", "put", "delete", "patch"].forEach(method => {
 	const METHOD = method.toUpperCase();
 
 	JsonClient.prototype[method] = function(
@@ -265,9 +178,13 @@ class JsonClient{
 
 const $json = new JsonClient();
 
+
+
+//TODO: export default middlewares
 export {
 	$json,
 	JsonClient,
 	MiddlewareStack,
 	Middlewares,
+	middlewares,
 };

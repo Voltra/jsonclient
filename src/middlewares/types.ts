@@ -11,3 +11,7 @@ export interface JsonArray extends Array<Json> {}
 export interface JsonObject extends Record<string, Json> {}
 
 export type FetchError = Json | Error;
+
+export type JsonClient = any; //TODO: Find how to forward declare classes
+
+export type Plugin<T> = ($json: JsonClient, ...args) => any;

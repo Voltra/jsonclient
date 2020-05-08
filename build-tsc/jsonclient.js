@@ -5,12 +5,13 @@ const Credentials_1 = require("./enums/Credentials");
 const Mode_1 = require("./enums/Mode");
 const Redirect_1 = require("./enums/Redirect");
 const Referrer_1 = require("./enums/Referrer");
-const utils_1 = require("./utils");
 const MiddlewareStack_1 = require("./middlewares/MiddlewareStack");
 exports.MiddlewareStack = MiddlewareStack_1.MiddlewareStack;
 const Middlewares_1 = require("./middlewares/Middlewares");
 exports.Middlewares = Middlewares_1.Middlewares;
 const middlewares_1 = require("./middlewares");
+const middlewares = require("./middlewares");
+exports.middlewares = middlewares;
 const getDefaults = () => ({
     qs: {},
     options: {},
@@ -45,50 +46,7 @@ class JsonClient {
             DELETE: Middlewares_1.Middlewares.create(),
             PATCH: Middlewares_1.Middlewares.create(),
         };
-        this.pipeGlobalMiddlewares();
-        this.pipeGetMiddlewares();
-        this.pipePostLikeMiddlewares();
-    }
-    pipeGlobalMiddlewares() {
-        ["GET", "POST", "PUT", "DELETE", "PATCH"]
-            .forEach(method => {
-            this.middlewares[method]
-                .pipeBeforeRequest(middlewares_1.typeCheckPath)
-                .pipeBeforeRequest(middlewares_1.typeCheckData)
-                .pipeBeforeResponse(middlewares_1.responseHandler);
-        });
-    }
-    pipeGetMiddlewares() {
-        this.middlewares.GET
-            .pipeBeforeRequest(({ path, data, options }) => {
-            const newData = utils_1.mergeDeep({}, this.defaults.globals.qs || {}, this.defaults.GET.qs || {}, data);
-            const fetchOptions = utils_1.mergeDeep({}, this.defaults.globals.options, this.defaults.GET.options || {}, options, { method: "GET" });
-            fetchOptions.headers = utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults.GET.options || {}, fetchOptions.headers || {});
-            return {
-                path,
-                data: newData,
-                options: fetchOptions,
-            };
-        }).pipeBeforeRequest(middlewares_1.processQueryString);
-    }
-    pipePostLikeMiddlewares() {
-        ["POST", "PUT", "DELETE", "PATCH"]
-            .forEach(method => {
-            this.middlewares[method]
-                .pipeBeforeRequest(({ path, data, options }) => {
-                const payload = {
-                    method,
-                    body: JSON.stringify(utils_1.mergeDeep({}, this.defaults.globals.data, this.defaults[method].data, data)),
-                    headers: utils_1.mergeDeep({}, this.defaults.globals.headers, this.defaults[method].headers),
-                };
-                const finalPayload = utils_1.mergeDeep({}, this.defaults.globals.options, this.defaults[method].options, payload, options);
-                return {
-                    path,
-                    data,
-                    options: finalPayload,
-                };
-            });
-        });
+        middlewares_1.installAllDefaults(this);
     }
     async get(path, data = {}, options = {}) {
         const middlewares = this.middlewares.GET;

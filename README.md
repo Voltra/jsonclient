@@ -14,17 +14,31 @@ First you need to get this library, either by using [npm (w/ node)](https://node
 
 Then you will need to use it in your application :
 
-* \>= ES6 : `import {$json} from "@voltra/json"`
-* Node (<ES6) : `const {$json} = require("@voltra/json")`
-* In your HTML files : `<script src="your/path/to/dist/jsonclient.js"></script>` (exposes the variable `$json`)
+* \>= ES6 : `import { $json } from "@voltra/json"`
+* Node (<ES6) : `const { $json } = require("@voltra/json")`
+* In your HTML files : `<script src="your/path/to/dist/jsonclient.js"></script>` (exposes the variable `jsonclient` which contains the exports)
+
+
+
+### Exposed variables
+
+The global export of library now exposes :
+
+```javascript
+{
+    $json, // default client
+    JsonClient, // client class
+    Middlewares, // class that stores middleware stacks for every hook
+    MiddlewareStack, // class that stores middlewares
+    middlewares, //TODO: export default middlewares
+}
+```
 
 
 
 ### GET requests
 
-This library uses my other library, [fetchJSON](https://www.npmjs.com/package/fetch_json),  as its GET request handler.
-
-Therefore, the behavior of `$json.get` is identical to the behavior of `fetchJSON`.
+Therefore, the behavior of `$json.get` is very similar to the behavior of [`fetchJSON`]([fetchJSON](https://www.npmjs.com/package/fetch_json)).
 
 
 
@@ -60,6 +74,12 @@ $json.post :: (
 
 
 
+### PUT/DELETE/PATCH requests
+
+All of these follow the same syntax as `$json.post` (PUT is `$json.put`, etc.).
+
+
+
 If you have any doubts, you could refer to [Mozilla's guide on how to provide options to `fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Supplying_request_options) or ask for advices on my [Discord server](https://discord.gg/JtWAjbw).
 
 ## Hooks and defaults
@@ -68,16 +88,184 @@ There are a few ways you can customize your JSON client (POST requests only) :
 
 * Pass your custom settings as the third argument
 * Change the default values
+* Use middlewares
 
 
+
+### Default values
 
 Default values are located in the object `$json.defaults` and are classified per HTTP methods (only those supported).
+
+For instance `$json.defaults.GET` are the default values for GET requests. There is also `$json.defaults.globals` that are applied for every method.
+
+Note that the order of application is :
+
+1. `defaults.globals`
+2. `defaults[METHOD]`
+3. your custom options
+
+
+
+### Middlewares
+
+This library now exposes a middleware system with several hooks :
+
+1. `beforeRequest` which preprocesses data in order to process the request
+2. `beforeResponse` which preprocesses raw response data
+3. `afterResponse` which preprocesses (supposedly) preprocessed JSON data before passing it as the result of the Promise
+4. `afterError` which preprocesses the error before it is rethrown
+
+The middleware stacks are exposed under `$json.middlewares[METHOD]` (i.e. for GET requests, it is under `$json.middlewares.GET`). You can therefore `pipe` your custom middlewares :
+
+```javascript
+// For instance
+$json.middlewares.GET.beforeRequest
+    .pipe(doStuff)
+    .pipe(thenDoSthg);
+```
+
+#### Default behavior (i.e. default middlewares)
+
+By default, the `$json` is configured with enough middlewares so that
+
+```javascript
+$json.get("/api/book", {
+    sort: "author",
+    order: "asc",
+    count: 69
+}).then(console.log)
+.catch(console.error);
+```
+
+Will emit a GET request to `/api/book?sort=author&order=asc&count=69` and log the resulting JSON whether it is the list of books or the error JSON.
+
+
+
+```javascript
+$json.post("/api/book", {
+    author_id: 420,
+    name: "Call of Cthulhu",
+    description: "Some lovecraftian masterpiece"
+}).then(console.log)
+.catch(console.error);
+```
+
+Will emit a POST request to `/api/book` with a JSON body that contains the given data and log the resulting JSON whether it is the inserted book or the error JSON.
+
+
+
+Note that if the response itself is not JSON, it will emit the following JSON as error :
+
+```javascript
+{
+    error, // the raw error
+    response, // the raw response
+}
+```
+
+
+
+#### Default middlewares
+
+You can find every single default middleware under the globally exported `middlewares` :
+
+```javascript
+const { middlewares } = window.jsonclient;
+// OR
+const { middlewares } = require("@voltra/json");
+```
+
+They are not really middlewares but rather functions that register the middleware on the `JsonClient` that you pass as parameter.
+
+#### Middleware hooks
+
+`beforeRequest` is a middleware stack of `JsonClientRequest` middlewares :
+
+```javascript
+const myMiddleware = ({ path, data, options }) => {
+    // [...]
+    return {
+        path: myPath,
+        data: myData,
+        options: myOptions,
+    };
+    // the return value could be a promise
+    /// Note that the last middleware may only return `path` and `options`
+    /// Both being values such that `fetch(path, options)` is a valid call
+};
+```
+
+`beforeResponse` is a middleware stack of `Response` (as in `GlobalFetch.Response`) :
+
+```javascript
+const myMiddleware = response => {
+    // [...]
+    return myResponse;
+    // the return value could be a promise
+};
+```
+
+`afterResponse` is a middleware stack of JSON data (or any javascript data) :
+
+```javascript
+const myMiddleware = parsedJson => {
+    // [...]
+    return someParsedJson;
+    // the return value could be a promise
+};
+```
+
+`afterError` is a middleware stack of JSON data (or any javascript data) or `Error` objects :
+
+```javascript
+const myMiddleware = error => {
+    // [...]
+    return myError;
+    // the return value could be a promise (that resolves to an error)
+};
+```
+
+
+
+#### Middleware stacks
+
+A middleware stack (i.e. `MiddlewareStack` instance) has several handy methods :
+
+* `pipe` which accepts a middleware (can be chained)
+* `execute` which accept data as input and processes the middleware stack over the data and results in a Promise
+* `at` which accepts an index and return the middleware at the given index (or `null` if there were none)
+* `removeAt` which accepts an index and removes the middleware at the given index, this will mutate the internal data structure so indexes may change (can be chained)
+
+You can create an empty `MiddlewareStack` by calling `MiddlewareStack.empty()`.
+
+#### `Middlewares` the hub of middleware stacks
+
+Of course you can access each individual `MiddlewareStack` by its name (e.g. `$json.middlewares.GET.beforeRequest`) but you can also use helper methods directly from the `Middlewares` instance :
+
+```javascript
+$json.middlewares.GET.beforeRequest.pipe(myMiddleware);
+// is (almost) equivalent to
+$json.middlewares.GET.pipeBeforeRequest(myMiddleware);
+
+
+// You can chain helper calls
+$json.middlewares.GET
+	.pipeBeforeRequest(myBeforeRequest)
+	.pipeBeforeResponse(myBeforeResponse)
+	.pipeAfterResponse(myAfterResponse)
+	.pipeAfterError(myAfterError)
+	// [...]
+```
+
+
+
+
 
 
 
 ## Dependencies
 
-There are only two dependencies :
+There is only one dependency :
 
 * [fetchJSON](https://www.npmjs.com/package/fetch_json) : Used in developpement as the GET request provider (I'm the one that needs it, you don't have to put it in your dependencies)
 
@@ -88,22 +276,36 @@ There are only two dependencies :
     ```javascript
     const {fetch, Request, Response, Headers} = require("fetch-ponyfill")();
     global.fetch = fetch; //For Node, this.fetch = fetch for browser
-
+  
     ///OR
-
+  
     import fetchPonyfill from "fetch-ponyfill"
-    const {fetch, Request, Response, Headers} = fetchPonyfill();
-    ```
-
-    
-
-  * [whatwg-fetch](https://www.npmjs.com/package/whatwg-fetch) : For old browsers
-
+    const { fetch, Request, Response, Headers } = fetchPonyfill();
+    global.fetch = fetch
+  ```
+  
+  
+  
+* [whatwg-fetch](https://www.npmjs.com/package/whatwg-fetch) : For old browsers
+  
   * [node-fetch](https://www.npmjs.com/package/node-fetch) : For Node-based environments
 
 
 
 ## Changes
+
+### v3.0.0
+
+Dropping :
+
+*  dependency on `fetchJSON`
+* support for method overriding/spoofing (no more `$json.method`)
+
+
+
+Globally exposed variable for the browser is now `jsonclient` (i.e. `window.$json` => `window.jsonclient.$json`).
+
+Now exposing a middleware system under `$json.middlewares`.
 
 ### v2.1.0
 

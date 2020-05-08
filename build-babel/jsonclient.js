@@ -33,8 +33,6 @@
 
   var Referrer_1 = require("./enums/Referrer");
 
-  var utils_1 = require("./utils");
-
   var MiddlewareStack_1 = require("./middlewares/MiddlewareStack");
 
   exports.MiddlewareStack = MiddlewareStack_1.MiddlewareStack;
@@ -44,6 +42,10 @@
   exports.Middlewares = Middlewares_1.Middlewares;
 
   var middlewares_1 = require("./middlewares");
+
+  var middlewares = require("./middlewares");
+
+  exports.middlewares = middlewares;
 
   var getDefaults = function getDefaults() {
     return {
@@ -86,66 +88,10 @@
         DELETE: Middlewares_1.Middlewares.create(),
         PATCH: Middlewares_1.Middlewares.create()
       };
-      this.pipeGlobalMiddlewares();
-      this.pipeGetMiddlewares();
-      this.pipePostLikeMiddlewares();
+      middlewares_1.installAllDefaults(this);
     }
 
     (0, _createClass2["default"])(JsonClient, [{
-      key: "pipeGlobalMiddlewares",
-      value: function pipeGlobalMiddlewares() {
-        var _this = this;
-
-        ["GET", "POST", "PUT", "DELETE", "PATCH"].forEach(function (method) {
-          _this.middlewares[method].pipeBeforeRequest(middlewares_1.typeCheckPath).pipeBeforeRequest(middlewares_1.typeCheckData).pipeBeforeResponse(middlewares_1.responseHandler);
-        });
-      }
-    }, {
-      key: "pipeGetMiddlewares",
-      value: function pipeGetMiddlewares() {
-        var _this2 = this;
-
-        this.middlewares.GET.pipeBeforeRequest(function (_ref) {
-          var path = _ref.path,
-              data = _ref.data,
-              options = _ref.options;
-          var newData = utils_1.mergeDeep({}, _this2.defaults.globals.qs || {}, _this2.defaults.GET.qs || {}, data);
-          var fetchOptions = utils_1.mergeDeep({}, _this2.defaults.globals.options, _this2.defaults.GET.options || {}, options, {
-            method: "GET"
-          });
-          fetchOptions.headers = utils_1.mergeDeep({}, _this2.defaults.globals.headers, _this2.defaults.GET.options || {}, fetchOptions.headers || {});
-          return {
-            path: path,
-            data: newData,
-            options: fetchOptions
-          };
-        }).pipeBeforeRequest(middlewares_1.processQueryString);
-      }
-    }, {
-      key: "pipePostLikeMiddlewares",
-      value: function pipePostLikeMiddlewares() {
-        var _this3 = this;
-
-        ["POST", "PUT", "DELETE", "PATCH"].forEach(function (method) {
-          _this3.middlewares[method].pipeBeforeRequest(function (_ref2) {
-            var path = _ref2.path,
-                data = _ref2.data,
-                options = _ref2.options;
-            var payload = {
-              method: method,
-              body: JSON.stringify(utils_1.mergeDeep({}, _this3.defaults.globals.data, _this3.defaults[method].data, data)),
-              headers: utils_1.mergeDeep({}, _this3.defaults.globals.headers, _this3.defaults[method].headers)
-            };
-            var finalPayload = utils_1.mergeDeep({}, _this3.defaults.globals.options, _this3.defaults[method].options, payload, options);
-            return {
-              path: path,
-              data: data,
-              options: finalPayload
-            };
-          });
-        });
-      }
-    }, {
       key: "get",
       value: function () {
         var _get = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(path) {
@@ -267,7 +213,7 @@
     };
 
     JsonClient.prototype["__".concat(method, "_options")] = /*#__PURE__*/function () {
-      var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(url, data, options) {
+      var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(url, data, options) {
         var middlewares, _yield$middlewares$be2, fetchPath, finalPayload, response, parsedResponse, err;
 
         return _regenerator["default"].wrap(function _callee2$(_context2) {
@@ -318,7 +264,7 @@
       }));
 
       return function (_x2, _x3, _x4) {
-        return _ref3.apply(this, arguments);
+        return _ref.apply(this, arguments);
       };
     }();
   });
