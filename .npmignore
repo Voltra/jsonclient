@@ -1,2 +1,5 @@
 .git/
 .git/*
+build-babel/
+build-tsc/
+tests/

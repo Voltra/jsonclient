@@ -1,6 +1,9 @@
 .env
 package-lock.json
 yarn.lock
+.vscode/
+.idea/
+.brackets.json
 
 *.swp
 .git/
