@@ -12,6 +12,7 @@ module.exports = {
 		path: path.resolve(thisPath, "dist"),
 		libraryTarget: "umd",
 		library: "jsonclient",
+		globalObject: "this",
     },
     resolve: {
         alias: {
