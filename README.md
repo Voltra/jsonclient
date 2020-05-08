@@ -30,7 +30,7 @@ The global export of library now exposes :
     JsonClient, // client class
     Middlewares, // class that stores middleware stacks for every hook
     MiddlewareStack, // class that stores middlewares
-    middlewares, //TODO: export default middlewares
+    middlewares, // a bunch of middleware installing functions
 }
 ```
 
@@ -56,19 +56,19 @@ Therefore, this library enables you to ease your job at emitting POST requests.
 
 
 
-`$json.post :: (url: string, data: any) -> Promise`
+`$json.post :: (url: string, data: object|undefined) -> Promise`
 
-`$json.post :: (url: string, data: any, options: object) -> Promise`
+`$json.post :: (url: string, data: object|undefined, options: object) -> Promise`
 
 ```
 $json.post :: (
 	url: string,
-	data: any,
-	cache: $json.enums.Cache,
-	credentials: $json.enums.Credentials,
-	mode: $json.enums.Mode,
-	redirect: $json.enums.Redirect,
-	referrer: $json.enums.Referrer
+	data: object|undefined,
+	cache: JsonClient.enums.Cache,
+	credentials: JsonClient.enums.Credentials,
+	mode: JsonClient.enums.Mode,
+	redirect: JsonClient.enums.Redirect,
+	referrer: JsonClient.enums.Referrer
 ) -> Promise
 ```
 
@@ -265,9 +265,8 @@ $json.middlewares.GET
 
 ## Dependencies
 
-There is only one dependency :
-
-* [fetchJSON](https://www.npmjs.com/package/fetch_json) : Used in developpement as the GET request provider (I'm the one that needs it, you don't have to put it in your dependencies)
+There is only two dependencies :
+* `sequency` which is used internally to process arrays of data more efficiently (you don't have to do anything about it)
 
 * The Fetch API or `fetch` : As part of the Fetch API, `fetch` allows to emit HTTP requests. This library is heavily based around this function and therefore requires it, modern browsers implement it but there are also a lot of polyfills out there, here are two of them :
 
@@ -282,9 +281,11 @@ There is only one dependency :
     import fetchPonyfill from "fetch-ponyfill"
     const { fetch, Request, Response, Headers } = fetchPonyfill();
     global.fetch = fetch
+    ```
   ```
   
   
+  ```
   
 * [whatwg-fetch](https://www.npmjs.com/package/whatwg-fetch) : For old browsers
   
@@ -298,7 +299,7 @@ There is only one dependency :
 
 Dropping :
 
-*  dependency on `fetchJSON`
+* dependency on `fetchJSON`
 * support for method overriding/spoofing (no more `$json.method`)
 
 
@@ -306,6 +307,8 @@ Dropping :
 Globally exposed variable for the browser is now `jsonclient` (i.e. `window.$json` => `window.jsonclient.$json`).
 
 Now exposing a middleware system under `$json.middlewares`.
+
+Moved `$json.enums` to be a static property of `JsonClient`, i.e. `JsonClient.enums`.
 
 ### v2.1.0
 
